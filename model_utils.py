@@ -1,3 +1,4 @@
+import os
 
 from typing import Tuple, Optional
 import numpy as np
@@ -17,16 +18,17 @@ def calculate_iou(target: np.ndarray, prediction: np.ndarray) -> float:
     return iou_score
 
 
-def calculate_iou_holdout_set(holdout_df_: pd.DataFrame, img_dims: Tuple, model_, resize_dim: Optional[tuple],
-                              pixel_threshold: float = 0.5, prediction_batch_size: int = 32) -> pd.DataFrame:
+def calculate_iou_holdout_set(holdout_df_: pd.DataFrame, img_dims: Tuple, model_,
+                              pixel_threshold: float = 0.5, prediction_batch_size: int = 32) \
+        -> Tuple[pd.DataFrame, list, list]:
     iou_list = list()
-    y_ped_list = list()
+    y_pred_list = list()
     y_list = list()
 
     for img_dx, df_ in holdout_df_.groupby(level=0):
         img_i_generator = DataGenerator2D(df=df_, x_col='x_tr_img_path', y_col=None,
                                           batch_size=prediction_batch_size, num_classes=None, shuffle=False,
-                                          resize_dim=resize_dim)
+                                          resize_dim=img_dims)
 
         label_i_generator = DataGenerator2D(df=df_, x_col='x_tr_img_path', y_col='y_tr_img_path',
                                             batch_size=prediction_batch_size, num_classes=None, shuffle=False,
@@ -58,8 +60,8 @@ def calculate_iou_holdout_set(holdout_df_: pd.DataFrame, img_dims: Tuple, model_
                     y_cut_i_restacked = np.concatenate([y_cut_i_restacked, y_cut_i_j], axis=2)
 
             # When there is only one image in the minibatch it adds an extra dimension
-            if len(y_cut_i_predict.shape) > 3:
-                y_cut_i_predict = np.squeeze(y_cut_i_predict, axis=3)
+            if len(y_cut_i_restacked.shape) > 3:
+                y_cut_i_restacked = np.squeeze(y_cut_i_restacked, axis=3)
 
             # Now stack the minibatches along the 3rd axis to complete the 3D image
             if i == 0:
@@ -70,7 +72,7 @@ def calculate_iou_holdout_set(holdout_df_: pd.DataFrame, img_dims: Tuple, model_
                 y_i_predict_3d = np.concatenate([y_i_predict_3d, y_cut_i_predict_resized], axis=2)
                 y_i_3d = np.concatenate([y_i_3d, y_cut_i_restacked], axis=2)
 
-        y_ped_list.append(y_i_predict_3d)
+        y_pred_list.append(y_i_predict_3d)
         y_list.append(y_i_3d)
 
         # Measure IoU over entire 3D image after concatenating all of the cuts
@@ -80,7 +82,58 @@ def calculate_iou_holdout_set(holdout_df_: pd.DataFrame, img_dims: Tuple, model_
     # Let's convert the iou to a pandas dataframe
     iou_df = pd.DataFrame(iou_list).set_index('index')
 
-    return iou_df
+    return iou_df, y_list, y_pred_list
+
+
+def predict_test_set(test_df_: pd.DataFrame, pred_dims: tuple, test_dims: tuple,  model_, pixel_threshold: float = 0.5,
+                     prediction_batch_size: int = 32, output_dir: str = 'test_pred') -> None:
+    os.makedirs(output_dir, exist_ok=True)
+
+    for img_dx, df_ in test_df_.groupby(level=0):
+        full_img_path = df_.loc[img_dx].iloc[0]['x_ts_img_path']
+        img_name = full_img_path.split('/')[-1].split('.')[0]
+
+        img_i_generator = DataGenerator2D(df=df_, x_col='x_ts_img_path', y_col=None,
+                                          batch_size=prediction_batch_size, num_classes=None, shuffle=False,
+                                          resize_dim=pred_dims)
+
+        # Predict for a group of cuts of the same image
+        for i, (X_cut_i, _) in enumerate(img_i_generator):
+            y_cut_i_predict = model_.predict(X_cut_i)
+
+            # Resize prediction to match label mask dimensions and restack
+            #  the predictions so that hey are channel last
+            for j, depth_i in enumerate(range(X_cut_i.shape[0])):
+                y_cut_i_predict_resized_j = cv.resize(
+                    y_cut_i_predict[j, :, :], test_dims,
+                    interpolation=cv.INTER_CUBIC)  # INTER_LINEAR is faster but INTER_CUBIC is better
+
+                # Add extra dim at the end
+                y_cut_i_predict_resized_j = y_cut_i_predict_resized_j.reshape(y_cut_i_predict_resized_j.shape + (1,))
+
+                if j == 0:
+                    y_cut_i_predict_resized = y_cut_i_predict_resized_j
+
+                else:
+                    y_cut_i_predict_resized = np.concatenate([y_cut_i_predict_resized, y_cut_i_predict_resized_j],
+                                                             axis=2)
+
+            # When there is only one image in the minibatch it adds an extra dimension
+            if len(y_cut_i_predict_resized.shape) > 3:
+                y_cut_i_predict_resized = np.squeeze(y_cut_i_predict_resized, axis=3)
+
+            # Now stack the minibatches along the 3rd axis to complete the 3D image
+            if i == 0:
+                y_i_predict_3d = y_cut_i_predict_resized
+
+            else:
+                y_i_predict_3d = np.concatenate([y_i_predict_3d, y_cut_i_predict_resized], axis=2)
+
+            y_i_predict_3d_thres = (y_i_predict_3d > pixel_threshold) * 1
+
+            # TODO: add the part that saves them as npz files
+            np.savez(os.path.join(output_dir, f'{img_name}_pred.npz'),
+                     y_i_predict_3d_thres)
 
 
 def jaccard_distance_loss(y_true, y_pred, smooth=100):

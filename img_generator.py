@@ -165,6 +165,8 @@ class DataGenerator2D(tf.keras.utils.Sequence):
 
         X, y = self.__get_data(batch_idx)
 
+        assert ~(X == y).all()
+
         return X, y
 
     def on_epoch_end(self):
@@ -444,6 +446,8 @@ class DataGenerator3D(tf.keras.utils.Sequence):
         :return:
         """
 
+        # TODO: Modify it back to look like the indexing in 2D, as we are going to split the data into volumes that
+        #          are exact mutiples of 2.
         # We use iloc to identify the next `batch_size` rows to pick and then read these images in 3D
         #  to get get the corresponding path and images with the method __get_data()
         batch_idx = self.indices.iloc[index * self.batch_size: (index + 1) * self.batch_size].index
@@ -473,6 +477,8 @@ class DataGenerator3D(tf.keras.utils.Sequence):
         """
 
         if self.shuffle:
+            # TODO: Reshuffle only image indexes but assuming we have the depth
+            #          are exact mutiples of 2.
             # Shuffle indexes
             shuffled_img_idx = np.random.choice(self.indices.index, self.indices.index.shape[0], replace=False)
 
@@ -481,6 +487,7 @@ class DataGenerator3D(tf.keras.utils.Sequence):
     def __get_data(self, batch_idx: pd.MultiIndex) -> Tuple[np.ndarray, np.ndarray]:
         y = None
 
+        # TODO: Modify it so that it creates batches of numbers that are exact multiples of 2 (i.e: groups of 32, 16, etc.)
         for i, (index, row) in enumerate(self.df.loc[batch_idx].iterrows()):
 
             # Read the 3D image
@@ -702,16 +709,11 @@ if __name__ == '__main__':
     #data_generator = DataGenerator2D(df=tr_df_cancer_info, x_col='x_tr_img_path', y_col='y_tr_img_path', batch_size=4,
     #                                 shuffle=True, shuffle_depths=True)
     from model_utils import calculate_iou
-    i = 0
-    for X, y in data_generator:
+
+    for i, (X, y) in enumerate(data_generator):
         #print(X.shape)
         #print(y.shape)
         assert ~(X == y).all()
-        print((X == y).sum() / (y.shape[0] * y.shape[1] * y.shape[2]))
-        print(calculate_iou(X, y))
-        print(calculate_iou(X>0.5, y>0.99))
-        print(calculate_iou(y > 0.99, y > 0.99))
-        i+= 1
         if i == 20: break
 
     # Test 2D Generator

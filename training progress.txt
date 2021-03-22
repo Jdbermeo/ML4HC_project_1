@@ -1,0 +1,269 @@
+Progress for 20 epochs with wrong rotation augmentation
+	- TLDR: It was pretty much stuck in terms of loss and val_iou after the first 4 epochs an stuck val_iou_thresholded after the first epoch
+Epoch 1/20
+418/418 [==============================] - 992s 2s/step - loss: 0.1138 - iou: 5.8193e-04 - iou_thresholded: 0.6186 - val_loss: 0.0109 - val_iou: 7.5779e-05 - val_iou_thresholded: 0.3334
+Epoch 2/20
+418/418 [==============================] - 933s 2s/step - loss: 0.0046 - iou: 0.0015 - iou_thresholded: 0.7347 - val_loss: 0.0043 - val_iou: 0.0015 - val_iou_thresholded: 0.3334
+Epoch 3/20
+418/418 [==============================] - 926s 2s/step - loss: 0.0039 - iou: 0.0018 - iou_thresholded: 0.7661 - val_loss: 0.0089 - val_iou: 0.0046 - val_iou_thresholded: 0.3334
+Epoch 4/20
+418/418 [==============================] - 928s 2s/step - loss: 0.0043 - iou: 0.0015 - iou_thresholded: 0.7428 - val_loss: 0.0040 - val_iou: 9.9901e-04 - val_iou_thresholded: 0.3334
+Epoch 5/20
+418/418 [==============================] - 926s 2s/step - loss: 0.0035 - iou: 0.0018 - iou_thresholded: 0.7182 - val_loss: 0.0039 - val_iou: 0.0012 - val_iou_thresholded: 0.3334
+Epoch 6/20
+418/418 [==============================] - 908s 2s/step - loss: 0.0041 - iou: 0.0017 - iou_thresholded: 0.7793 - val_loss: 0.0038 - val_iou: 0.0015 - val_iou_thresholded: 0.3334
+Epoch 7/20
+418/418 [==============================] - 918s 2s/step - loss: 0.0035 - iou: 0.0019 - iou_thresholded: 0.7313 - val_loss: 0.0038 - val_iou: 0.0017 - val_iou_thresholded: 0.3334
+Epoch 8/20
+418/418 [==============================] - 919s 2s/step - loss: 0.0033 - iou: 0.0018 - iou_thresholded: 0.7710 - val_loss: 0.0038 - val_iou: 0.0016 - val_iou_thresholded: 0.3334
+Epoch 9/20
+418/418 [==============================] - 922s 2s/step - loss: 0.0034 - iou: 0.0018 - iou_thresholded: 0.7760 - val_loss: 0.0038 - val_iou: 0.0016 - val_iou_thresholded: 0.3334
+Epoch 10/20
+418/418 [==============================] - 921s 2s/step - loss: 0.0041 - iou: 0.0018 - iou_thresholded: 0.7365 - val_loss: 0.0038 - val_iou: 0.0016 - val_iou_thresholded: 0.3334
+Epoch 11/20
+418/418 [==============================] - 920s 2s/step - loss: 0.0034 - iou: 0.0019 - iou_thresholded: 0.7394 - val_loss: 0.0038 - val_iou: 0.0016 - val_iou_thresholded: 0.3334
+Epoch 12/20
+418/418 [==============================] - 921s 2s/step - loss: 0.0037 - iou: 0.0018 - iou_thresholded: 0.7383 - val_loss: 0.0038 - val_iou: 0.0016 - val_iou_thresholded: 0.3334
+Epoch 13/20
+418/418 [==============================] - 921s 2s/step - loss: 0.0039 - iou: 0.0019 - iou_thresholded: 0.7367 - val_loss: 0.0038 - val_iou: 0.0016 - val_iou_thresholded: 0.3334
+Epoch 14/20
+418/418 [==============================] - 923s 2s/step - loss: 0.0035 - iou: 0.0019 - iou_thresholded: 0.7231 - val_loss: 0.0038 - val_iou: 0.0016 - val_iou_thresholded: 0.3334
+Epoch 15/20
+418/418 [==============================] - 916s 2s/step - loss: 0.0032 - iou: 0.0018 - iou_thresholded: 0.7834 - val_loss: 0.0038 - val_iou: 0.0016 - val_iou_thresholded: 0.3334
+Epoch 16/20
+418/418 [==============================] - 923s 2s/step - loss: 0.0035 - iou: 0.0018 - iou_thresholded: 0.7554 - val_loss: 0.0038 - val_iou: 0.0016 - val_iou_thresholded: 0.3334
+Epoch 17/20
+418/418 [==============================] - 925s 2s/step - loss: 0.0049 - iou: 0.0018 - iou_thresholded: 0.7760 - val_loss: 0.0038 - val_iou: 0.0017 - val_iou_thresholded: 0.3334
+Epoch 18/20
+418/418 [==============================] - 932s 2s/step - loss: 0.0042 - iou: 0.0019 - iou_thresholded: 0.7245 - val_loss: 0.0038 - val_iou: 0.0016 - val_iou_thresholded: 0.3334
+Epoch 19/20
+418/418 [==============================] - 927s 2s/step - loss: 0.0044 - iou: 0.0018 - iou_thresholded: 0.7444 - val_loss: 0.0038 - val_iou: 0.0016 - val_iou_thresholded: 0.3334
+Epoch 20/20
+418/418 [==============================] - 927s 2s/step - loss: 0.0046 - iou: 0.0019 - iou_thresholded: 0.7186 - val_loss: 0.0038 - val_iou: 0.0016 - val_iou_thresholded: 0.3334
+<tensorflow.python.keras.callbacks.History at 0x7fd0362ca8d0>
+
+
+Jaccard lossEpoch 1/5
+418/418 [==============================] - 1165s 3s/step - loss: 7.0421 - iou: 0.0041 - iou_thresholded: 0.3711 - val_loss: 0.1239 - val_iou: 0.0079 - val_iou_thresholded: 0.3334
+Epoch 2/5
+418/418 [==============================] - 1164s 3s/step - loss: 0.1606 - iou: 0.0405 - iou_thresholded: 0.7232 - val_loss: 0.1228 - val_iou: 0.0127 - val_iou_thresholded: 0.3334
+Epoch 3/5
+418/418 [==============================] - 1181s 3s/step - loss: 0.1367 - iou: 0.1009 - iou_thresholded: 0.7078 - val_loss: 0.1220 - val_iou: 0.0228 - val_iou_thresholded: 0.3334
+Epoch 4/5
+418/418 [==============================] - 1174s 3s/step - loss: 0.1509 - iou: 0.1811 - iou_thresholded: 0.7428 - val_loss: 0.1216 - val_iou: 0.0369 - val_iou_thresholded: 0.3334
+Epoch 5/5
+418/418 [==============================] - 1157s 3s/step - loss: 0.0775 - iou: 0.2840 - iou_thresholded: 0.8110 - val_loss: 0.1214 - val_iou: 0.0542 - val_iou_thresholded: 0.3334
+
+Jaccard lossEpoch 1/5 with sampling
+Epoch 1/5
+321/321 [==============================] - 611s 2s/step - loss: 0.0417 - iou: 0.0023 - iou_thresholded: 0.0020 - val_loss: 0.0023 - val_iou: 8.6207e-04 - val_iou_thresholded: 0.6003
+Epoch 2/5
+321/321 [==============================] - 600s 2s/step - loss: 0.0026 - iou: 0.0024 - iou_thresholded: 0.0043 - val_loss: 0.0026 - val_iou: 0.0017 - val_iou_thresholded: 0.4436
+Epoch 3/5
+321/321 [==============================] - 592s 2s/step - loss: 0.0018 - iou: 0.0036 - iou_thresholded: 0.0134 - val_loss: 7.9221e-04 - val_iou: 0.0027 - val_iou_thresholded: 0.3926
+Epoch 4/5
+321/321 [==============================] - 595s 2s/step - loss: 0.0016 - iou: 0.0048 - iou_thresholded: 0.0085 - val_loss: 0.0016 - val_iou: 0.0031 - val_iou_thresholded: 0.3644
+Epoch 5/5
+321/321 [==============================] - 607s 2s/step - loss: 0.0015 - iou: 0.0056 - iou_thresholded: 0.0111 - val_loss: 6.1688e-04 - val_iou: 0.0030 - val_iou_thresholded: 0.6003
+<tensorflow.python.keras.callbacks.History at 0x7f49ea792690>
+<tensorflow.python.keras.callbacks.History at 0x7f7cb28bde50>
+
+
+
+Binary Focal Loss
+
+Epoch 1/20
+
+Epoch 00001: LearningRateScheduler reducing learning rate to 0.01.
+81/81 [==============================] - 349s 4s/step - loss: 0.2261 - iou: 0.0030 - iou_thresholded: 7.6587e-04 - val_loss: 0.4479 - val_iou: 6.0012e-04 - val_iou_thresholded: 6.7527e-04
+
+Epoch 00001: saving model to ./training_runs/juan/binary_loss_only/v1_20_lr_0.01_epochs_90_10_split_binary_focal_loss_flips_rot_crop_depth_shuffle_up_down_sampling/model_sampling.01-0.45.h5
+Epoch 2/20
+
+Epoch 00002: LearningRateScheduler reducing learning rate to 0.01.
+81/81 [==============================] - 335s 4s/step - loss: 0.2076 - iou: 0.0038 - iou_thresholded: 8.2713e-04 - val_loss: 0.1583 - val_iou: 0.0011 - val_iou_thresholded: 0.1720
+
+Epoch 00002: saving model to ./training_runs/juan/binary_loss_only/v1_20_lr_0.01_epochs_90_10_split_binary_focal_loss_flips_rot_crop_depth_shuffle_up_down_sampling/model_sampling.02-0.16.h5
+Epoch 3/20
+
+Epoch 00003: LearningRateScheduler reducing learning rate to 0.01.
+81/81 [==============================] - 334s 4s/step - loss: 0.1969 - iou: 0.0041 - iou_thresholded: 8.2279e-04 - val_loss: 0.1661 - val_iou: 0.0017 - val_iou_thresholded: 0.6013
+
+Epoch 00003: saving model to ./training_runs/juan/binary_loss_only/v1_20_lr_0.01_epochs_90_10_split_binary_focal_loss_flips_rot_crop_depth_shuffle_up_down_sampling/model_sampling.03-0.17.h5
+Epoch 4/20
+
+Epoch 00004: LearningRateScheduler reducing learning rate to 0.01.
+81/81 [==============================] - 334s 4s/step - loss: 0.1774 - iou: 0.0050 - iou_thresholded: 9.6174e-04 - val_loss: 0.2543 - val_iou: 0.0021 - val_iou_thresholded: 0.6013
+
+Epoch 00004: saving model to ./training_runs/juan/binary_loss_only/v1_20_lr_0.01_epochs_90_10_split_binary_focal_loss_flips_rot_crop_depth_shuffle_up_down_sampling/model_sampling.04-0.25.h5
+Epoch 5/20
+
+Epoch 00005: LearningRateScheduler reducing learning rate to 0.001.
+81/81 [==============================] - 334s 4s/step - loss: 0.1802 - iou: 0.0055 - iou_thresholded: 9.2760e-04 - val_loss: 0.1190 - val_iou: 0.0020 - val_iou_thresholded: 0.6013
+
+Epoch 00005: saving model to ./training_runs/juan/binary_loss_only/v1_20_lr_0.01_epochs_90_10_split_binary_focal_loss_flips_rot_crop_depth_shuffle_up_down_sampling/model_sampling.05-0.12.h5
+Epoch 6/20
+
+Epoch 00006: LearningRateScheduler reducing learning rate to 0.001.
+81/81 [==============================] - 333s 4s/step - loss: 0.1638 - iou: 0.0061 - iou_thresholded: 8.6911e-04 - val_loss: 0.0904 - val_iou: 0.0019 - val_iou_thresholded: 0.6013
+
+Epoch 00006: saving model to ./training_runs/juan/binary_loss_only/v1_20_lr_0.01_epochs_90_10_split_binary_focal_loss_flips_rot_crop_depth_shuffle_up_down_sampling/model_sampling.06-0.09.h5
+Epoch 7/20
+
+Epoch 00007: LearningRateScheduler reducing learning rate to 0.001.
+81/81 [==============================] - 334s 4s/step - loss: 0.1610 - iou: 0.0063 - iou_thresholded: 8.2707e-04 - val_loss: 0.0847 - val_iou: 0.0021 - val_iou_thresholded: 0.6013
+
+Epoch 00007: saving model to ./training_runs/juan/binary_loss_only/v1_20_lr_0.01_epochs_90_10_split_binary_focal_loss_flips_rot_crop_depth_shuffle_up_down_sampling/model_sampling.07-0.08.h5
+Epoch 8/20
+
+Epoch 00008: LearningRateScheduler reducing learning rate to 0.001.
+81/81 [==============================] - 333s 4s/step - loss: 0.1599 - iou: 0.0068 - iou_thresholded: 9.7206e-04 - val_loss: 0.0842 - val_iou: 0.0021 - val_iou_thresholded: 0.6013
+
+Epoch 00008: saving model to ./training_runs/juan/binary_loss_only/v1_20_lr_0.01_epochs_90_10_split_binary_focal_loss_flips_rot_crop_depth_shuffle_up_down_sampling/model_sampling.08-0.08.h5
+Epoch 9/20
+
+Epoch 00009: LearningRateScheduler reducing learning rate to 0.001.
+81/81 [==============================] - 331s 4s/step - loss: 0.1495 - iou: 0.0070 - iou_thresholded: 0.0015 - val_loss: 0.0812 - val_iou: 0.0023 - val_iou_thresholded: 0.6013
+
+Epoch 00009: saving model to ./training_runs/juan/binary_loss_only/v1_20_lr_0.01_epochs_90_10_split_binary_focal_loss_flips_rot_crop_depth_shuffle_up_down_sampling/model_sampling.09-0.08.h5
+Epoch 10/20
+
+Epoch 00010: LearningRateScheduler reducing learning rate to 0.001.
+81/81 [==============================] - 334s 4s/step - loss: 0.1481 - iou: 0.0068 - iou_thresholded: 0.0016 - val_loss: 0.0787 - val_iou: 0.0023 - val_iou_thresholded: 0.6013
+
+Epoch 00010: saving model to ./training_runs/juan/binary_loss_only/v1_20_lr_0.01_epochs_90_10_split_binary_focal_loss_flips_rot_crop_depth_shuffle_up_down_sampling/model_sampling.10-0.08.h5
+Epoch 11/20
+
+Epoch 00011: LearningRateScheduler reducing learning rate to 0.001.
+81/81 [==============================] - 337s 4s/step - loss: 0.1495 - iou: 0.0075 - iou_thresholded: 0.0018 - val_loss: 0.0919 - val_iou: 0.0027 - val_iou_thresholded: 0.6013
+
+Epoch 00011: saving model to ./training_runs/juan/binary_loss_only/v1_20_lr_0.01_epochs_90_10_split_binary_focal_loss_flips_rot_crop_depth_shuffle_up_down_sampling/model_sampling.11-0.09.h5
+Epoch 12/20
+
+Epoch 00012: LearningRateScheduler reducing learning rate to 0.001.
+81/81 [==============================] - 331s 4s/step - loss: 0.1446 - iou: 0.0076 - iou_thresholded: 0.0020 - val_loss: 0.0791 - val_iou: 0.0022 - val_iou_thresholded: 0.6013
+
+Epoch 00012: saving model to ./training_runs/juan/binary_loss_only/v1_20_lr_0.01_epochs_90_10_split_binary_focal_loss_flips_rot_crop_depth_shuffle_up_down_sampling/model_sampling.12-0.08.h5
+Epoch 13/20
+
+Epoch 00013: LearningRateScheduler reducing learning rate to 0.001.
+81/81 [==============================] - 329s 4s/step - loss: 0.1388 - iou: 0.0077 - iou_thresholded: 0.0023 - val_loss: 0.0904 - val_iou: 0.0022 - val_iou_thresholded: 0.6013
+
+Epoch 00013: saving model to ./training_runs/juan/binary_loss_only/v1_20_lr_0.01_epochs_90_10_split_binary_focal_loss_flips_rot_crop_depth_shuffle_up_down_sampling/model_sampling.13-0.09.h5
+Epoch 14/20
+
+Epoch 00014: LearningRateScheduler reducing learning rate to 0.0001.
+81/81 [==============================] - 330s 4s/step - loss: 0.1387 - iou: 0.0078 - iou_thresholded: 0.0020 - val_loss: 0.0773 - val_iou: 0.0028 - val_iou_thresholded: 0.6013
+
+Epoch 00014: saving model to ./training_runs/juan/binary_loss_only/v1_20_lr_0.01_epochs_90_10_split_binary_focal_loss_flips_rot_crop_depth_shuffle_up_down_sampling/model_sampling.14-0.08.h5
+Epoch 15/20
+
+Epoch 00015: LearningRateScheduler reducing learning rate to 0.0001.
+81/81 [==============================] - 340s 4s/step - loss: 0.1318 - iou: 0.0080 - iou_thresholded: 0.0026 - val_loss: 0.0752 - val_iou: 0.0028 - val_iou_thresholded: 0.6013
+
+Epoch 00015: saving model to ./training_runs/juan/binary_loss_only/v1_20_lr_0.01_epochs_90_10_split_binary_focal_loss_flips_rot_crop_depth_shuffle_up_down_sampling/model_sampling.15-0.08.h5
+Epoch 16/20
+
+Epoch 00016: LearningRateScheduler reducing learning rate to 0.0001.
+81/81 [==============================] - 340s 4s/step - loss: 0.1341 - iou: 0.0086 - iou_thresholded: 0.0050 - val_loss: 0.0743 - val_iou: 0.0029 - val_iou_thresholded: 0.6013
+
+Epoch 00016: saving model to ./training_runs/juan/binary_loss_only/v1_20_lr_0.01_epochs_90_10_split_binary_focal_loss_flips_rot_crop_depth_shuffle_up_down_sampling/model_sampling.16-0.07.h5
+Epoch 17/20
+
+Epoch 00017: LearningRateScheduler reducing learning rate to 0.0001.
+81/81 [==============================] - 338s 4s/step - loss: 0.1303 - iou: 0.0086 - iou_thresholded: 0.0075 - val_loss: 0.0770 - val_iou: 0.0029 - val_iou_thresholded: 0.6013
+
+Epoch 00017: saving model to ./training_runs/juan/binary_loss_only/v1_20_lr_0.01_epochs_90_10_split_binary_focal_loss_flips_rot_crop_depth_shuffle_up_down_sampling/model_sampling.17-0.08.h5
+Epoch 18/20
+
+Epoch 00018: LearningRateScheduler reducing learning rate to 0.0001.
+81/81 [==============================] - 335s 4s/step - loss: 0.1329 - iou: 0.0084 - iou_thresholded: 0.0039 - val_loss: 0.0782 - val_iou: 0.0030 - val_iou_thresholded: 0.5735
+
+Epoch 00018: saving model to ./training_runs/juan/binary_loss_only/v1_20_lr_0.01_epochs_90_10_split_binary_focal_loss_flips_rot_crop_depth_shuffle_up_down_sampling/model_sampling.18-0.08.h5
+Epoch 19/20
+
+Epoch 00019: LearningRateScheduler reducing learning rate to 0.0001.
+81/81 [==============================] - 335s 4s/step - loss: 0.1360 - iou: 0.0089 - iou_thresholded: 0.0059 - val_loss: 0.0733 - val_iou: 0.0029 - val_iou_thresholded: 0.6013
+
+Epoch 00019: saving model to ./training_runs/juan/binary_loss_only/v1_20_lr_0.01_epochs_90_10_split_binary_focal_loss_flips_rot_crop_depth_shuffle_up_down_sampling/model_sampling.19-0.07.h5
+Epoch 20/20
+
+Epoch 00020: LearningRateScheduler reducing learning rate to 0.0001.
+81/81 [==============================] - 337s 4s/step - loss: 0.1286 - iou: 0.0086 - iou_thresholded: 0.0051 - val_loss: 0.0724 - val_iou: 0.0030 - val_iou_thresholded: 0.6013
+
+Epoch 00020: saving model to ./training_runs/juan/binary_loss_only/v1_20_lr_0.01_epochs_90_10_split_binary_focal_loss_flips_rot_crop_depth_shuffle_up_down_sampling/model_sampling.20-0.07.h5
+<tensorflow.python.keras.callbacks.History at 0x7fb26d39f890>
+
+Contnuation after 20 epochs
+Epoch 1/20
+
+Epoch 00001: LearningRateScheduler reducing learning rate to 0.0001.
+81/81 [==============================] - 339s 4s/step - loss: 0.1284 - iou: 0.0090 - iou_thresholded: 0.0095 - val_loss: 0.0798 - val_iou: 0.0030 - val_iou_thresholded: 0.5535
+
+Epoch 00001: saving model to ./training_runs/juan/binary_loss_only/v1_20_lr_0.01_epochs_90_10_split_binary_focal_loss_flips_rot_crop_depth_shuffle_up_down_sampling/model_sampling_after_20_epochs.01-0.08.h5
+Epoch 2/20
+
+Epoch 00002: LearningRateScheduler reducing learning rate to 0.0001.
+81/81 [==============================] - 335s 4s/step - loss: 0.1294 - iou: 0.0086 - iou_thresholded: 0.0109 - val_loss: 0.0794 - val_iou: 0.0030 - val_iou_thresholded: 0.5735
+
+Epoch 00002: saving model to ./training_runs/juan/binary_loss_only/v1_20_lr_0.01_epochs_90_10_split_binary_focal_loss_flips_rot_crop_depth_shuffle_up_down_sampling/model_sampling_after_20_epochs.02-0.08.h5
+Epoch 3/20
+
+Epoch 00003: LearningRateScheduler reducing learning rate to 0.0001.
+81/81 [==============================] - 332s 4s/step - loss: 0.1301 - iou: 0.0092 - iou_thresholded: 0.0069 - val_loss: 0.0710 - val_iou: 0.0030 - val_iou_thresholded: 0.6013
+
+Epoch 00003: saving model to ./training_runs/juan/binary_loss_only/v1_20_lr_0.01_epochs_90_10_split_binary_focal_loss_flips_rot_crop_depth_shuffle_up_down_sampling/model_sampling_after_20_epochs.03-0.07.h5
+Epoch 4/20
+
+Epoch 00004: LearningRateScheduler reducing learning rate to 0.0001.
+81/81 [==============================] - 335s 4s/step - loss: 0.1307 - iou: 0.0089 - iou_thresholded: 0.0049 - val_loss: 0.0697 - val_iou: 0.0030 - val_iou_thresholded: 0.6013
+
+Epoch 00004: saving model to ./training_runs/juan/binary_loss_only/v1_20_lr_0.01_epochs_90_10_split_binary_focal_loss_flips_rot_crop_depth_shuffle_up_down_sampling/model_sampling_after_20_epochs.04-0.07.h5
+Epoch 5/20
+
+Epoch 00005: LearningRateScheduler reducing learning rate to 0.0001.
+81/81 [==============================] - 335s 4s/step - loss: 0.1280 - iou: 0.0092 - iou_thresholded: 0.0096 - val_loss: 0.0751 - val_iou: 0.0031 - val_iou_thresholded: 0.5746
+
+Epoch 00005: saving model to ./training_runs/juan/binary_loss_only/v1_20_lr_0.01_epochs_90_10_split_binary_focal_loss_flips_rot_crop_depth_shuffle_up_down_sampling/model_sampling_after_20_epochs.05-0.08.h5
+Epoch 6/20
+
+Epoch 00006: LearningRateScheduler reducing learning rate to 0.0001.
+81/81 [==============================] - 338s 4s/step - loss: 0.1269 - iou: 0.0088 - iou_thresholded: 0.0077 - val_loss: 0.0730 - val_iou: 0.0031 - val_iou_thresholded: 0.6013
+
+Epoch 00006: saving model to ./training_runs/juan/binary_loss_only/v1_20_lr_0.01_epochs_90_10_split_binary_focal_loss_flips_rot_crop_depth_shuffle_up_down_sampling/model_sampling_after_20_epochs.06-0.07.h5
+Epoch 7/20
+
+Epoch 00007: LearningRateScheduler reducing learning rate to 0.0001.
+81/81 [==============================] - 335s 4s/step - loss: 0.1279 - iou: 0.0090 - iou_thresholded: 0.0069 - val_loss: 0.0710 - val_iou: 0.0031 - val_iou_thresholded: 0.6013
+
+Epoch 00007: saving model to ./training_runs/juan/binary_loss_only/v1_20_lr_0.01_epochs_90_10_split_binary_focal_loss_flips_rot_crop_depth_shuffle_up_down_sampling/model_sampling_after_20_epochs.07-0.07.h5
+Epoch 8/20
+
+Epoch 00008: LearningRateScheduler reducing learning rate to 1e-05.
+81/81 [==============================] - 341s 4s/step - loss: 0.1250 - iou: 0.0088 - iou_thresholded: 0.0090 - val_loss: 0.0720 - val_iou: 0.0031 - val_iou_thresholded: 0.5790
+
+Epoch 00008: saving model to ./training_runs/juan/binary_loss_only/v1_20_lr_0.01_epochs_90_10_split_binary_focal_loss_flips_rot_crop_depth_shuffle_up_down_sampling/model_sampling_after_20_epochs.08-0.07.h5
+Epoch 9/20
+
+Epoch 00009: LearningRateScheduler reducing learning rate to 1e-05.
+81/81 [==============================] - 335s 4s/step - loss: 0.1270 - iou: 0.0093 - iou_thresholded: 0.0097 - val_loss: 0.0725 - val_iou: 0.0032 - val_iou_thresholded: 0.5762
+
+Epoch 00009: ReduceLROnPlateau reducing learning rate to 9.999999747378752e-07.
+
+Epoch 00009: saving model to ./training_runs/juan/binary_loss_only/v1_20_lr_0.01_epochs_90_10_split_binary_focal_loss_flips_rot_crop_depth_shuffle_up_down_sampling/model_sampling_after_20_epochs.09-0.07.h5
+Epoch 10/20
+
+Epoch 00010: LearningRateScheduler reducing learning rate to 1e-05.
+81/81 [==============================] - 335s 4s/step - loss: 0.1284 - iou: 0.0092 - iou_thresholded: 0.0095 - val_loss: 0.0728 - val_iou: 0.0032 - val_iou_thresholded: 0.5763
+
+Epoch 00010: saving model to ./training_runs/juan/binary_loss_only/v1_20_lr_0.01_epochs_90_10_split_binary_focal_loss_flips_rot_crop_depth_shuffle_up_down_sampling/model_sampling_after_20_epochs.10-0.07.h5
+Epoch 11/20
+
+Epoch 00011: LearningRateScheduler reducing learning rate to 1e-05.
+81/81 [==============================] - 334s 4s/step - loss: 0.1230 - iou: 0.0089 - iou_thresholded: 0.0137 - val_loss: 0.0733 - val_iou: 0.0032 - val_iou_thresholded: 0.5763
+
+Epoch 00011: saving model to ./training_runs/juan/binary_loss_only/v1_20_lr_0.01_epochs_90_10_split_binary_focal_loss_flips_rot_crop_depth_shuffle_up_down_sampling/model_sampling_after_20_epochs.11-0.07.h5
+Epoch 12/20
+
+Epoch 00012: LearningRateScheduler reducing learning rate to 1e-05.
+19/81 [======>.......................] - ETA: 3:44 - loss: 0.1264 - iou: 0.0097 - iou_thresholded: 0.0160
