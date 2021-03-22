@@ -2,101 +2,11 @@ import os
 import random
 
 import cv2 as cv
-import typing
-from typing import List, Tuple, Dict, Optional
+from typing import Tuple, Dict, Optional
 import numpy as np
 import pandas as pd
 import nibabel as nib
 import tensorflow as tf
-
-
-def get_img_path_df(dir_: str, col_prefix: str) -> pd.DataFrame:
-    """
-    Create a pandas dataframe with the paths to valid '.nii.gz' files in it
-
-    :param dir_:
-    :param col_prefix: col prefix to assign name '{col_prefix}_img_path' to the column with image paths
-    :return:
-    """
-    img_path_list = [os.path.join(dir_, filename) for filename in os.listdir(dir_) if
-                     filename != '.DS_Store' and '._' not in filename]
-    img_num_list = [filename.split('colon_')[1].split('.nii.gz')[0] for filename in os.listdir(dir_) if
-                    filename != '.DS_Store' and '._' not in filename]
-
-    img_path_df = pd.DataFrame({f'{col_prefix}_img_path': img_path_list,
-                                'index': img_num_list}) \
-        .set_index('index')
-
-    return img_path_df
-
-
-def add_depth_image(df_: pd.DataFrame, col_name: str) -> List:
-    """
-    Return a list with the depth of each of the image paths listed in `col_name`
-
-    :param df_:
-    :param col_name:
-    :return:
-    """
-
-    channel_number_list = list()
-
-    for index, img_path in df_[col_name].iteritems():
-        channel_number_list.append(nib.load(img_path).shape[-1])
-
-    return channel_number_list
-
-
-def create_depth_based_index(df_: pd.DataFrame, col_to_use: str = 'depth') -> pd.DataFrame:
-    """
-    Create a new set of rows and indexes where we have a row for each possible image and depth/channel/cut it has
-    :param df_:
-    :param col_to_use:
-    :return:
-    """
-    df_ = pd.DataFrame(df_[col_to_use].map(lambda depth: list(range(depth))).explode().rename('depth_i'))\
-            .join(df_) \
-            .set_index('depth_i', append=True)
-
-    return df_
-
-
-def build_train_test_df(data_path_source_dir_: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """
-    Use the functions above to create a dataset for the train and test sets where we have as indexes the number of the
-    image, each channel or depth it has, and the path to it.
-
-    For train we generate a column for the path of the image and to the labels
-    For train we only generate a column for the path of the images
-
-    :param data_path_source_dir_:
-    :return:
-    """
-
-    x_dir_path_tr = os.path.join(data_path_source_dir_, 'imagesTr')
-    y_dir_path_tr = os.path.join(data_path_source_dir_, 'labelsTr')
-
-    x_tr_df = get_img_path_df(dir_=x_dir_path_tr, col_prefix='x_tr')
-    x_tr_df['x_tr_img_depth'] = add_depth_image(df_=x_tr_df, col_name='x_tr_img_path')
-
-    y_tr_df = get_img_path_df(dir_=y_dir_path_tr, col_prefix='y_tr')
-    y_tr_df['y_tr_img_depth'] = add_depth_image(df_=y_tr_df, col_name='y_tr_img_path')
-
-    tr_df_ = x_tr_df.join(y_tr_df, how='inner')
-
-    assert (tr_df_.x_tr_img_depth == tr_df_.y_tr_img_depth).all()
-
-    tr_df_ = tr_df_.drop('y_tr_img_depth', axis=1).rename(columns={'x_tr_img_depth': 'depth'})
-
-    tr_df_ = create_depth_based_index(df_=tr_df_, col_to_use='depth')
-
-    # Convert to series
-    x_dir_path_ts = os.path.join(data_path_source_dir_, 'imagesTs')
-    x_ts_df_ = get_img_path_df(dir_=x_dir_path_ts, col_prefix='x_ts')
-    x_ts_df_['depth'] = add_depth_image(df_=x_ts_df_, col_name='x_ts_img_path')
-    x_ts_df_ = create_depth_based_index(df_=x_ts_df_, col_to_use='depth')
-
-    return tr_df_, x_ts_df_
 
 
 class DataGenerator2D(tf.keras.utils.Sequence):
@@ -680,8 +590,9 @@ class DataGenerator3D(tf.keras.utils.Sequence):
 
 
 if __name__ == '__main__':
+    import get_ct_scan_information
     data_path_source_dir = os.path.join('ml4h_proj1_colon_cancer_ct', 'ml4h_proj1_colon_cancer_ct')
-    tr_df, x_ts_df = build_train_test_df(data_path_source_dir)
+    tr_df, x_ts_df = get_ct_scan_information.build_train_test_df(data_path_source_dir)
 
     cancer_pixels_df = pd.read_pickle('cancer_pixels_df')
     cancer_pixels_df.reset_index(inplace=True)
@@ -694,12 +605,12 @@ if __name__ == '__main__':
     tr_df_cancer_info['has_cancer_pixels'] = ~tr_df_cancer_info.cancer_pixel_area.isna()
     tr_df_cancer_info.cancer_pixel_area.fillna(0, inplace=True)
 
-    resize_dim = (256, 256)
+    resize_dim_ = (256, 256)
 
     # Test 2D Generator
     data_generator = DataGenerator2D(df=tr_df_cancer_info, x_col='x_tr_img_path', y_col='y_tr_img_path', batch_size=4,
                                      shuffle=True, shuffle_depths=True,
-                                     resize_dim=resize_dim,
+                                     resize_dim=resize_dim_,
                                      class_sampling={'cancer_pixel': 2, 'not_cancer_pixel': 0.4},
                                      depth_class_col='has_cancer_pixels',
                                      rotate_range=30, horizontal_flip=True, vertical_flip=True,
@@ -721,12 +632,12 @@ if __name__ == '__main__':
                 .loc[:, ['x_tr_img_path', 'y_tr_img_path', 'depth']]
 
     data_generator_3D = DataGenerator3D(df=tr_3s_df, x_col='x_tr_img_path', y_col='y_tr_img_path',
-                                         batch_size=1,
-                                         shuffle=False,
-                                         resize_dim=resize_dim,
-                                         rotate_range=30, horizontal_flip=True, vertical_flip=True,
-                                         random_crop=(0.8, 0.9),
-                                         shearing=((0.1, 0.3), (0., 0.0)), gaussian_blur=(0.3162, 0.9487))
+                                        batch_size=1,
+                                        shuffle=False,
+                                        resize_dim=resize_dim_,
+                                        rotate_range=30, horizontal_flip=True, vertical_flip=True,
+                                        random_crop=(0.8, 0.9),
+                                        shearing=((0.1, 0.3), (0., 0.0)), gaussian_blur=(0.3162, 0.9487))
 
     for i, (X, y) in enumerate(data_generator_3D):
         #print(X.shape)
