@@ -397,9 +397,9 @@ class DataGenerator3D(tf.keras.utils.Sequence):
 
     def __init__(self, df: pd.DataFrame, x_col: str, y_col: Optional[str] = None, batch_size: int = 2,
                  num_classes: Optional[int] = None, shuffle: bool = False,
-                 resize_dim: Optional[tuple] = None, hounsfield_min: float = -1000., hounsfield_max: float = 2000.,
+                 resize_dim: Optional[tuple] = None, hounsfield_min: float = -1000., hounsfield_max: float = 400.,
                  rotate_range: Optional[float] = None, horizontal_flip: bool = False, vertical_flip: bool = False,
-                 random_crop: Optional[tuple] = None, shearing: Optional[Tuple[tuple, tuple]] =None,
+                 random_crop: Optional[tuple] = None, shearing: Optional[Tuple[tuple, tuple]] = None,
                  gaussian_blur: Optional[Tuple[float, float]] = None
                  ):
         self.batch_size = batch_size
@@ -449,6 +449,17 @@ class DataGenerator3D(tf.keras.utils.Sequence):
         batch_idx = self.indices.iloc[index * self.batch_size: (index + 1) * self.batch_size].index
 
         X, y = self.__get_data(batch_idx)
+
+        # If the depth is odd, pad it with zeroes to make it even
+        #if X.shape[3] % 2 == 1:
+        #    X = self.pad_along_axis(array=X, target_length=X.shape[3] + 1, axis=3)
+        #    y = self.pad_along_axis(array=y, target_length=y.shape[3] + 1, axis=3)
+
+        X = X.reshape(X.shape + (1,))
+        if y is not None:
+            y = y.reshape(y.shape + (1,))
+
+        assert ~(X == y).all()
 
         return X, y
 
@@ -500,6 +511,8 @@ class DataGenerator3D(tf.keras.utils.Sequence):
                 if self.y_col is not None:
                     y_img = self.augment_img(img_=y_img, aug_operation_=aug_operation_i,
                                              operation_param_dict_=operation_param_dict)
+
+            # If the image has an odd depth, pad it with zeroes along the last dimesion
 
             # Reshape before adding to the mini-batch
             x_img = x_img.reshape((1,) + x_img.shape)
@@ -646,6 +659,18 @@ class DataGenerator3D(tf.keras.utils.Sequence):
         else:
             raise Exception('Augmented operation not programmed')
 
+    @staticmethod
+    def pad_along_axis(array: np.ndarray, target_length: int, axis: int = 0):
+        pad_size = target_length - array.shape[axis]
+
+        if pad_size <= 0:
+            return array
+
+        npad = [(0, 0)] * array.ndim
+        npad[axis] = (0, pad_size)
+
+        return np.pad(array, pad_width=npad, mode='constant', constant_values=0)
+
 
 if __name__ == '__main__':
     data_path_source_dir = os.path.join('ml4h_proj1_colon_cancer_ct', 'ml4h_proj1_colon_cancer_ct')
@@ -674,15 +699,24 @@ if __name__ == '__main__':
                                      random_crop=(0.8, 0.9),
                                      shearing=((0.1, 0.3), (0., 0.0)), gaussian_blur=(0.3162, 0.9487))
 
+    #data_generator = DataGenerator2D(df=tr_df_cancer_info, x_col='x_tr_img_path', y_col='y_tr_img_path', batch_size=4,
+    #                                 shuffle=True, shuffle_depths=True)
+    from model_utils import calculate_iou
+    i = 0
     for X, y in data_generator:
-        print(X.shape)
-        print(y.shape)
-
-        break
+        #print(X.shape)
+        #print(y.shape)
+        assert ~(X == y).all()
+        print((X == y).sum() / (y.shape[0] * y.shape[1] * y.shape[2]))
+        print(calculate_iou(X, y))
+        print(calculate_iou(X>0.5, y>0.99))
+        print(calculate_iou(y > 0.99, y > 0.99))
+        i+= 1
+        if i == 20: break
 
     # Test 2D Generator
     tr_3s_df = tr_df_cancer_info.reset_index(level=1).drop_duplicates(['x_tr_img_path', 'y_tr_img_path'], keep='last')\
-                .loc[:, ['x_tr_img_path', 'y_tr_img_path', 'depth_i']]
+                .loc[:, ['x_tr_img_path', 'y_tr_img_path', 'depth']]
 
     data_generator_3D = DataGenerator3D(df=tr_3s_df, x_col='x_tr_img_path', y_col='y_tr_img_path',
                                          batch_size=1,
@@ -696,7 +730,8 @@ if __name__ == '__main__':
         #print(X.shape)
         #print(y.shape)
         assert X.shape == y.shape
-        assert X.shape[3] == tr_3s_df.iloc[i]['depth_i'] + 1
+
+        #assert X.shape[3] == tr_3s_df.iloc[i]['depth'] + 1
 
         #if i == 10: break
 
