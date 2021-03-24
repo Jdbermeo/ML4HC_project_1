@@ -10,6 +10,13 @@ from img_generator import DataGenerator2D
 
 
 def generate_fold_dict(df_: pd.DataFrame, n_folds: int = 3, seed: int = 123) -> Dict[str, Dict[str, pd.DataFrame]]:
+    """
+
+    :param df_:
+    :param n_folds:
+    :param seed:
+    :return:
+    """
     img_num_idx_list = df_.index.levels[0]
     folder = KFold(n_splits=n_folds, random_state=seed, shuffle=True)
     df_fold_dict = dict()
@@ -27,6 +34,12 @@ def generate_fold_dict(df_: pd.DataFrame, n_folds: int = 3, seed: int = 123) -> 
 
 
 def calculate_iou(target: np.ndarray, prediction: np.ndarray) -> float:
+    """
+
+    :param target:
+    :param prediction:
+    :return:
+    """
     intersection = np.logical_and(target, prediction)
     union = np.logical_or(target, prediction)
     iou_score = np.sum(intersection.astype(np.float64)) / np.sum(union.astype(np.float64))
@@ -37,6 +50,15 @@ def calculate_iou(target: np.ndarray, prediction: np.ndarray) -> float:
 def calculate_iou_holdout_set(holdout_df_: pd.DataFrame, img_dims: Tuple, model_,
                               pixel_threshold: float = 0.5, prediction_batch_size: int = 32) \
         -> Tuple[pd.DataFrame, list, list]:
+    """
+
+    :param holdout_df_:
+    :param img_dims:
+    :param model_:
+    :param pixel_threshold:
+    :param prediction_batch_size:
+    :return:
+    """
 
     iou_list = list()
     y_pred_list = list()
@@ -104,6 +126,17 @@ def calculate_iou_holdout_set(holdout_df_: pd.DataFrame, img_dims: Tuple, model_
 
 def predict_test_set(test_df_: pd.DataFrame, pred_dims: tuple, test_dims: tuple,  model_, pixel_threshold: float = 0.5,
                      prediction_batch_size: int = 32, output_dir: str = 'test_pred') -> None:
+    """
+
+    :param test_df_:
+    :param pred_dims:
+    :param test_dims:
+    :param model_:
+    :param pixel_threshold:
+    :param prediction_batch_size:
+    :param output_dir:
+    :return:
+    """
     os.makedirs(output_dir, exist_ok=True)
 
     for img_dx, df_ in test_df_.groupby(level=0):
@@ -148,7 +181,6 @@ def predict_test_set(test_df_: pd.DataFrame, pred_dims: tuple, test_dims: tuple,
 
             y_i_predict_3d_thres = (y_i_predict_3d > pixel_threshold) * 1
 
-            # TODO: add the part that saves them as npz files
             np.savez(os.path.join(output_dir, f'{img_name}_pred.npz'),
                      y_i_predict_3d_thres)
 

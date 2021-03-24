@@ -13,9 +13,8 @@ import tensorflow as tf
 from tensorflow.keras.optimizers import Adam
 from keras_unet.metrics import iou, iou_thresholded
 
-import img_generator
-import model_utils
-import loss_functions
+from model import loss_functions, model_utils, img_generator
+from preprocessing import get_ct_scan_information
 
 """
 Script's parameters
@@ -36,6 +35,20 @@ imbalance_sampling = 'up_down_sampling'
 attepmt_name_dir = f'v{version}_{num_epoch}_lr_{lr}_epochs_{split}_{loss_used}_{augmentations}_{depth_shuffle}_{imbalance_sampling}' 
 attepmt_name_dir = os.path.join('training_runs', 'juan', 'binary_loss_only', attepmt_name_dir)
 
+# Add paramerters of image generators
+#train
+x_col='x_tr_img_path', y_col='y_tr_img_path', batch_size=64,
+    shuffle=True, shuffle_depths=True,
+    class_sampling={'cancer_pixel': 2, 'not_cancer_pixel': 0.4}, depth_class_col='has_cancer_pixels',
+    resize_dim=resize_dim, hounsfield_min=-1000., hounsfield_max=400.,
+    rotate_range=30, horizontal_flip=True, vertical_flip=True, random_crop=(0.8, 0.9),
+    shearing=None, gaussian_blur=None
+    
+#validation
+   df=holdout_fold_0_df, x_col='x_tr_img_path', y_col='y_tr_img_path', batch_size=32, shuffle=False,
+    resize_dim=resize_dim, hounsfield_min=-1000., hounsfield_max=400.,
+    rotate_range=None, horizontal_flip=False, vertical_flip=False
+
 """
 
 # Create dataframes in the format and with the information required by the generators that will feed the model
@@ -45,13 +58,14 @@ data_path_source_dir = os.path.join('ml4h_proj1_colon_cancer_ct')
 
 tr_df, x_ts_df = img_generator.build_train_test_df(data_path_source_dir)
 
+cancer_pixels_df = get_ct_scan_information.get_cancer_pixel_count_df(full_tr_df=tr_df)
 
 """### Create CV folds for `tr_df`
 
 let's go for 10 folds to have a 90/10 split. We can still only use only 3 or 5 to estimate the metrics
 """
 
-tr_fold_df_dict =  model_utils.generate_fold_dict(df_=tr_df, n_folds=10, seed=123) # 10 folds to have 90/10 split, but we can use only 3 or 5 to estimate the metrics
+tr_fold_df_dict = model_utils.generate_fold_dict(df_=tr_df, n_folds=10, seed=123) # 10 folds to have 90/10 split, but we can use only 3 or 5 to estimate the metrics
 
 # Let's get the data of the first fold
 tr_fold_0_df = tr_fold_df_dict['fold_0']['train']
@@ -61,12 +75,6 @@ logging.info(f'Rows in the train set in each fold (before sampling): {tr_fold_0_
 logging.info(f'Rows in the holdout set in each fold (before sampling): {holdout_fold_0_df.shape[0]}')
 
 # Let's add the information of which slices contain cancer and which do not
-# TODO: Add function that determines which images have cancer or not
-cancer_pixels_df = pd.read_pickle('cancer_pixels_df')
-cancer_pixels_df.reset_index(inplace=True)
-cancer_pixels_df['index'] = cancer_pixels_df.image_name.map(
-    lambda str_: str_.split('.nii.gz')[0].split('colon_')[1])
-
 tr_fold_0_df_cancer_info = model_utils.add_cancer_pixel_info(
     df_=tr_fold_0_df.copy(), 
     cancer_pixels_df_=cancer_pixels_df)
@@ -211,8 +219,8 @@ result_list = list()
 
 for threshold in np.random.uniform(min_theshold, max_threshold, n_samples):
   for y_i, y_pred_i in zip(y_list, y_pred_list):
-    img_i_iou = model_utils.calculate_iou(target=(y_i > true_label_threshold)*1,
-                              prediction=(y_pred_i > threshold)*1)
+    img_i_iou = model_utils.calculate_iou(target=(y_i > true_label_threshold) * 1,
+                                          prediction=(y_pred_i > threshold)*1)
     iou_list.append(img_i_iou)  
 
   result_list.append({'threshold': threshold, 'mean_iou':np.mean(img_i_iou)})
@@ -226,10 +234,10 @@ cancer_pixels_df.reset_index(inplace=True)
 cancer_pixels_df['index'] = cancer_pixels_df.image_name.map(lambda str_: str_.split('.nii.gz')[0].split('colon_')[1])
 
 img_with_cancer_gen = img_generator.DataGenerator2D(df=holdout_fold_0_df_cancer_info[holdout_fold_0_df_cancer_info.cancer_pixel_area > 0].sample(20),
-                                      x_col='x_tr_img_path', y_col='y_tr_img_path', batch_size=4, num_classes=None, shuffle=False, resize_dim=resize_dim)
+                                                    x_col='x_tr_img_path', y_col='y_tr_img_path', batch_size=4, num_classes=None, shuffle=False, resize_dim=resize_dim)
 
-img_without_cancer_gen = img_generator.DataGenerator2D(df=holdout_fold_0_df_cancer_info[holdout_fold_0_df_cancer_info.cancer_pixel_area==0].sample(20),
-                                     x_col='x_tr_img_path', y_col='y_tr_img_path', batch_size=4, num_classes=None, shuffle=False, resize_dim=resize_dim)
+img_without_cancer_gen = img_generator.DataGenerator2D(df=holdout_fold_0_df_cancer_info[holdout_fold_0_df_cancer_info.cancer_pixel_area == 0].sample(20),
+                                                       x_col='x_tr_img_path', y_col='y_tr_img_path', batch_size=4, num_classes=None, shuffle=False, resize_dim=resize_dim)
 
 #model = tf.keras.models.load_model('./5_epochs_v2', custom_objects={'iou':iou, 'iou_thresholded': iou_thresholded})
 

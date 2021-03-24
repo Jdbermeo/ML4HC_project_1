@@ -1,5 +1,26 @@
+from typing import Union, Callable
+
+import numpy as np
 import tensorflow as tf
 from keras import backend as K
+
+
+def get_loss_function(loss_function_name: str, **kwargs) -> Union[str, Callable]:
+
+    if loss_function_name == 'jaccard_loss':
+        return jaccard_distance_loss
+
+    elif loss_function_name == 'dice_loss':
+        return jaccard_distance_loss
+
+    elif loss_function_name == 'binary_focal_loss':
+        return binary_focal_loss(**kwargs)
+
+    elif loss_function_name == 'binary_crossentropy':
+        return 'binary_crossentropy'
+
+    else:
+        raise Exception('Loss function not included in `get_loss_function()`')
 
 
 def jaccard_distance_loss(y_true, y_pred, smooth=100):
@@ -31,7 +52,7 @@ def dice_coef(y_true, y_pred, smooth=1):
     @author: wassname
     """
     intersection = K.sum(K.abs(y_true * y_pred), axis=-1)
-    return (2. * intersection + smooth) / (K.sum(K.square(y_true),-1) + K.sum(K.square(y_pred),-1) + smooth)
+    return (2. * intersection + smooth) / (K.sum(K.square(y_true), -1) + K.sum(K.square(y_pred), -1) + smooth)
 
 
 def dice_coef_loss(y_true, y_pred):
@@ -43,6 +64,7 @@ def dice_coef_loss(y_true, y_pred):
     """
     
     return 1-dice_coef(y_true, y_pred)
+
 
 # Focal loss, alpha is the weight given
 def focal_loss(gamma=2., alpha=.25):
@@ -59,7 +81,8 @@ def focal_loss(gamma=2., alpha=.25):
         pt_1 = tf.where(tf.equal(y_true, 1), y_pred, tf.ones_like(y_pred))
         pt_0 = tf.where(tf.equal(y_true, 0), y_pred, tf.zeros_like(y_pred))
 
-        return -K.mean(alpha * K.pow(1. - pt_1, gamma) * K.log(pt_1)) - K.mean((1 - alpha) * K.pow(pt_0, gamma) * K.log(1. - pt_0))
+        return -K.mean(alpha * K.pow(1. - pt_1, gamma) * K.log(pt_1)) - \
+               K.mean((1 - alpha) * K.pow(pt_0, gamma) * K.log(1. - pt_0))
 
     return focal_loss_fixed
 
@@ -125,7 +148,8 @@ def categorical_focal_loss(alpha, gamma=2.):
         Official paper: https://arxiv.org/pdf/1708.02002.pdf
         https://www.tensorflow.org/api_docs/python/tf/keras/backend/categorical_crossentropy
     Usage:
-     model.compile(loss=[categorical_focal_loss(alpha=[[.25, .25, .25]], gamma=2)], metrics=["accuracy"], optimizer=adam)
+     model.compile(loss=[categorical_focal_loss(alpha=[[.25, .25, .25]], gamma=2)],
+      metrics=["accuracy"], optimizer=adam)
     """
 
     alpha = np.array(alpha, dtype=np.float32)

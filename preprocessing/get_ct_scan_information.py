@@ -64,7 +64,7 @@ def build_train_test_df(data_path_source_dir_: str) -> Tuple[pd.DataFrame, pd.Da
     For train we generate a column for the path of the image and to the labels
     For train we only generate a column for the path of the images
 
-    :param data_path_source_dir_:
+    :param data_path_source_dir_: Path to directory with images and labels of train data and images of test data
     :return:
     """
 
@@ -94,6 +94,39 @@ def build_train_test_df(data_path_source_dir_: str) -> Tuple[pd.DataFrame, pd.Da
     return tr_df_, x_ts_df_
 
 
+def get_cancer_pixel_count_df(full_tr_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Find which are the slices of the training set 3D images that actually have cancer pixels and their corresponding
+    count within the slice. We use this for EDA and to add the `has_cancer_pixels` on the training data to up-sample
+    and down-sample cancer images.
+
+    :param full_tr_df: Complete training set dataframe as returned by the `build_train_test_df()` function in the
+                        first position
+    :return: Dataframe indexed just like `full_tr_df` with the image slices that have cancer pixels and their
+                corresponding area
+    """
+    cancer_pixel_info = list()
+
+    for label_path in full_tr_df.y_tr_img_path:
+        img_number = label_path.split('colon_')[-1].split('.nii.gz')[0]
+        img_label_arr = nib.load(label_path).get_data()
+
+        for cut in range(img_label_arr.shape[2]):
+            if (img_label_arr[:, :, cut] == 0).all():
+                continue
+
+            else:
+                cut_cancer_pixel_area_i = img_label_arr[:, :, cut].sum()
+                cancer_pixel_info.append(
+                    {'index': img_number, 'depth': img_label_arr.shape[2], 'depth_i': cut,
+                     'cancer_pixel_area': cut_cancer_pixel_area_i}
+                )
+
+    cancer_pixels_df_ = pd.DataFrame(cancer_pixel_info).set_index(['index', 'depth_i'])
+
+    return cancer_pixels_df_
+
+
 def add_cancer_pixel_info(df_: pd.DataFrame, cancer_pixels_df_: pd.DataFrame) -> pd.DataFrame:
     """
     Adds information of which slices contain pixels labeled as cancerous tissue assuming both `df_` and
@@ -104,7 +137,7 @@ def add_cancer_pixel_info(df_: pd.DataFrame, cancer_pixels_df_: pd.DataFrame) ->
     :param cancer_pixels_df_:
     :return: df_ with 'has_cancer_pixels' and 'cancer_pixel_area' columns
     """
-    df_ = df_.join(cancer_pixels_df_.set_index(['index', 'depth_i'])[['cancer_pixel_area']], how='left')
+    df_ = df_.join(cancer_pixels_df_[['cancer_pixel_area']], how='left')
     df_['has_cancer_pixels'] = ~df_.cancer_pixel_area.isna()
     df_.cancer_pixel_area.fillna(0, inplace=True)
 

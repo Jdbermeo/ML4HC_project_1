@@ -590,11 +590,12 @@ class DataGenerator3D(tf.keras.utils.Sequence):
 
 
 if __name__ == '__main__':
-    import get_ct_scan_information
-    data_path_source_dir = os.path.join('ml4h_proj1_colon_cancer_ct', 'ml4h_proj1_colon_cancer_ct')
+    from preprocessing import get_ct_scan_information
+
+    data_path_source_dir = os.path.join('../ml4h_proj1_colon_cancer_ct', 'ml4h_proj1_colon_cancer_ct')
     tr_df, x_ts_df = get_ct_scan_information.build_train_test_df(data_path_source_dir)
 
-    cancer_pixels_df = pd.read_pickle('cancer_pixels_df')
+    cancer_pixels_df = pd.read_pickle('../cancer_pixels_df')
     cancer_pixels_df.reset_index(inplace=True)
     cancer_pixels_df['index'] = cancer_pixels_df.image_name.map(
         lambda str_: str_.split('.nii.gz')[0].split('colon_')[1])
@@ -619,7 +620,6 @@ if __name__ == '__main__':
 
     #data_generator = DataGenerator2D(df=tr_df_cancer_info, x_col='x_tr_img_path', y_col='y_tr_img_path', batch_size=4,
     #                                 shuffle=True, shuffle_depths=True)
-    from model_utils import calculate_iou
 
     for i, (X, y) in enumerate(data_generator):
         #print(X.shape)
