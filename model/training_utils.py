@@ -1,9 +1,13 @@
+import os
+import logging
 from typing import Dict, Union, Callable
 
 import pandas as pd
 from sklearn.model_selection import KFold
 
 from loss_functions import jaccard_distance_loss, binary_focal_loss, dice_coef_loss
+from model import img_generator
+from preprocessing import get_ct_scan_information
 
 
 def scheduler(epoch, lr):
@@ -60,3 +64,75 @@ def get_loss_function(loss_function_name: str, **kwargs) -> Union[str, Callable]
 
     else:
         raise Exception('Loss function not included in `get_loss_function()`')
+
+
+def prepare_train_holdout_generators(data_path_source_dir_: str, training_params: dict):
+    """
+    Takes directory where CT scan data is stored. Assumes subdirs imagesTs/Tr and labelsTr structure. Returns
+    generators that read the scan data by 2D slices and feed them to the model with an augmentation and class
+    balancing logic through up and down sampling.
+
+    :param data_path_source_dir_: Dir where CT scan data is stored. Assumes subdirs imagesTs/Tr and labelsTr
+    :param training_params: Training parameters from the YAML
+    :return: train_data_generator, holdout_data_generator objects to feed the Keras model
+    """
+    sampling_params_ = training_params['sampling_params']
+    augmentation_params_ = training_params['augmentation_params']
+    preprocesing_params_ = training_params['preprocesing_params']
+    preprocess_object_storing_dir_ = training_params['preprocess_object_storing_dir']
+
+    # Create dataframes in the format and with the information required by the generators that will feed the model
+    tr_df, x_ts_df = get_ct_scan_information.build_train_test_df(data_path_source_dir_)
+    cancer_pixels_df = get_ct_scan_information.get_cancer_pixel_count_df(full_tr_df=tr_df)
+
+    # Create CV folds for `tr_df`
+    tr_fold_df_dict = generate_fold_dict(df_=tr_df, n_folds=training_params['folds'],
+                                         seed=training_params['seed'])
+
+    # Take one of the folds to train the model
+    tr_fold_0_df = tr_fold_df_dict['fold_0']['train']
+    holdout_fold_0_df = tr_fold_df_dict['fold_0']['holdout']
+    logging.info(f'Rows in the train set in each fold (before sampling): {tr_fold_0_df.shape[0]}')
+    logging.info(f'Rows in the holdout set in each fold (before sampling): {holdout_fold_0_df.shape[0]}')
+
+    # Let's add the information of which slices contain cancer and which do not
+    tr_fold_0_df_cancer_info = get_ct_scan_information.add_cancer_pixel_info(
+        df_=tr_fold_0_df.copy(),
+        cancer_pixels_df_=cancer_pixels_df
+    )
+
+    tr_fold_0_df_cancer_info.to_pickle(
+        os.path.join(preprocess_object_storing_dir_, 'tr_fold_0_df_cancer_info.pkl')
+    )
+
+    holdout_fold_0_df_cancer_info = get_ct_scan_information.add_cancer_pixel_info(
+        df_=holdout_fold_0_df.copy(),
+        cancer_pixels_df_=cancer_pixels_df
+    )
+
+    holdout_fold_0_df_cancer_info.to_pickle(
+        os.path.join(preprocess_object_storing_dir_, 'holdout_fold_0_df_cancer_info.pkl')
+    )
+
+    # Let's create a generator for the train and holdout set using the first fold
+    train_data_generator = img_generator.DataGenerator2D(
+        df=tr_fold_0_df_cancer_info, x_col='x_tr_img_path', y_col='y_tr_img_path',
+        shuffle=True, shuffle_depths=True,
+        batch_size=training_params['batch_size_train'],
+        class_sampling=sampling_params_['class_sampling'], depth_class_col=sampling_params_['depth_class_col'],
+        resize_dim=preprocesing_params_['resize_dim_'], hounsfield_min=preprocesing_params_['hounsfield_min'],
+        hounsfield_max=preprocesing_params_['hounsfield_max'],
+        rotate_range=augmentation_params_['rotate_range'], horizontal_flip=augmentation_params_['horizontal_flip'],
+        vertical_flip=augmentation_params_['vertical_flip'], random_crop=augmentation_params_['random_crop'],
+        shearing=augmentation_params_['shearing'], gaussian_blur=augmentation_params_['gaussian_blur']
+    )
+
+    holdout_data_generator = img_generator.DataGenerator2D(
+        df=holdout_fold_0_df, x_col='x_tr_img_path', y_col='y_tr_img_path',
+        shuffle=False,
+        batch_size=training_params['batch_size_val'],
+        resize_dim=preprocesing_params_['resize_dim_'], hounsfield_min=preprocesing_params_['hounsfield_min'],
+        hounsfield_max=preprocesing_params_['hounsfield_max']
+    )
+
+    return train_data_generator, holdout_data_generator
