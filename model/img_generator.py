@@ -373,8 +373,6 @@ class DataGenerator3D(tf.keras.utils.Sequence):
         if y is not None:
             y = y.reshape(y.shape + (1,))
 
-        assert ~(X == y).all()
-
         return X, y
 
     def on_epoch_end(self):
@@ -618,14 +616,9 @@ if __name__ == '__main__':
                                      random_crop=(0.8, 0.9),
                                      shearing=((0.1, 0.3), (0., 0.0)), gaussian_blur=(0.3162, 0.9487))
 
-    #data_generator = DataGenerator2D(df=tr_df_cancer_info, x_col='x_tr_img_path', y_col='y_tr_img_path', batch_size=4,
-    #                                 shuffle=True, shuffle_depths=True)
-
     for i, (X, y) in enumerate(data_generator):
-        #print(X.shape)
-        #print(y.shape)
+        assert X.shape == y.shape
         assert ~(X == y).all()
-        if i == 20: break
 
     # Test 2D Generator
     tr_3s_df = tr_df_cancer_info.reset_index(level=1).drop_duplicates(['x_tr_img_path', 'y_tr_img_path'], keep='last')\
@@ -640,13 +633,8 @@ if __name__ == '__main__':
                                         shearing=((0.1, 0.3), (0., 0.0)), gaussian_blur=(0.3162, 0.9487))
 
     for i, (X, y) in enumerate(data_generator_3D):
-        #print(X.shape)
-        #print(y.shape)
         assert X.shape == y.shape
-
-        #assert X.shape[3] == tr_3s_df.iloc[i]['depth'] + 1
-
-        #if i == 10: break
+        assert ~(X == y).all()
 
 
 

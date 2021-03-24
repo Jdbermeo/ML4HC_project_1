@@ -13,7 +13,8 @@ import tensorflow as tf
 from tensorflow.keras.optimizers import Adam
 from keras_unet.metrics import iou, iou_thresholded
 
-from model import loss_functions, model_utils, img_generator
+import model.training_utils
+from model import loss_functions, metric_utils, img_generator
 from preprocessing import get_ct_scan_information
 
 """
@@ -48,6 +49,9 @@ x_col='x_tr_img_path', y_col='y_tr_img_path', batch_size=64,
    df=holdout_fold_0_df, x_col='x_tr_img_path', y_col='y_tr_img_path', batch_size=32, shuffle=False,
     resize_dim=resize_dim, hounsfield_min=-1000., hounsfield_max=400.,
     rotate_range=None, horizontal_flip=False, vertical_flip=False
+    
+# Model parameters
+loss=loss_functions.binary_focal_loss(gamma=2., alpha=0.7)
 
 """
 
@@ -65,7 +69,7 @@ cancer_pixels_df = get_ct_scan_information.get_cancer_pixel_count_df(full_tr_df=
 let's go for 10 folds to have a 90/10 split. We can still only use only 3 or 5 to estimate the metrics
 """
 
-tr_fold_df_dict = model_utils.generate_fold_dict(df_=tr_df, n_folds=10, seed=123) # 10 folds to have 90/10 split, but we can use only 3 or 5 to estimate the metrics
+tr_fold_df_dict = model.training_utils.generate_fold_dict(df_=tr_df, n_folds=10, seed=123) # 10 folds to have 90/10 split, but we can use only 3 or 5 to estimate the metrics
 
 # Let's get the data of the first fold
 tr_fold_0_df = tr_fold_df_dict['fold_0']['train']
@@ -75,11 +79,11 @@ logging.info(f'Rows in the train set in each fold (before sampling): {tr_fold_0_
 logging.info(f'Rows in the holdout set in each fold (before sampling): {holdout_fold_0_df.shape[0]}')
 
 # Let's add the information of which slices contain cancer and which do not
-tr_fold_0_df_cancer_info = model_utils.add_cancer_pixel_info(
+tr_fold_0_df_cancer_info = metric_utils.add_cancer_pixel_info(
     df_=tr_fold_0_df.copy(), 
     cancer_pixels_df_=cancer_pixels_df)
 
-holdout_fold_0_df_cancer_info = model_utils.add_cancer_pixel_info(
+holdout_fold_0_df_cancer_info = metric_utils.add_cancer_pixel_info(
     df_=holdout_fold_0_df.copy(), 
     cancer_pixels_df_=cancer_pixels_df)
 
@@ -110,47 +114,16 @@ attepmt_name_dir = os.path.join('training_runs', 'juan', 'binary_loss_only', att
 os.makedirs(attepmt_name_dir, exist_ok=True)
 
 # Build model
-model = custom_unet(
-    input_shape=resize_dim +(1,),
-    use_batch_norm=True,
-    num_classes=1,
-    filters=32,
-    dropout=0.2,
-    output_activation='sigmoid')
 
-# TODO: save the models sumary as text
-model.summary()
-
-def scheduler(epoch, lr):
-  if epoch <= 3:
-    return 1e-2
-  
-  elif 3 < epoch <= 12:
-    return 1e-3
-
-  elif 12 < epoch <= 25:
-    return 1e-4
-
-  else:
-    return 1e-5
-
+model = model.create_model(resize_dim_=resize_dim, lr_=lr, loss_function_name='binary_focal_loss',
+                           object_storing_dir=attepmt_name_dir,
+                           num_filters_first_level_=32, gamma=2., alpha=0.7)
 # Set the callbacks
 my_callbacks = [
-    tf.keras.callbacks.EarlyStopping(patience=20, verbose=1),
-    tf.keras.callbacks.ReduceLROnPlateau(monitor="val_loss", factor=0.1, patience=5, verbose=1),
-    tf.keras.callbacks.LearningRateScheduler(scheduler, verbose=1),
-    tf.keras.callbacks.ModelCheckpoint(
-        filepath=f'./{attepmt_name_dir}' + '/model_sampling.{epoch:02d}-{val_loss:.2f}.h5', verbose=1),
-    tf.keras.callbacks.TensorBoard(log_dir=f'./{attepmt_name_dir}/logs_new'),
-]
-
-model.compile(
-    optimizer=Adam(learning_rate=lr), 
-    #optimizer=SGD(lr=0.01, momentum=0.99),
-    #loss='binary_crossentropy',
-    loss=loss_functions.binary_focal_loss(gamma=2., alpha=0.7),
-    metrics=[iou, iou_thresholded]
-)
+    tf.keras.callbacks.LearningRateScheduler(training_utils.scheduler, verbose=1),
+    tf.keras.callbacks.ModelCheckpoint(filepath=f'./{object_storing_dir}' + '/model_sampling.{epoch:02d}-{val_loss:.2f}.h5', verbose=1),
+    tf.keras.callbacks.TensorBoard(log_dir=f'./{object_storing_dir}/logs'),
+  ]
 
 # Train the model
 model.fit(train_data_generator, validation_data=holdout_data_generator,
@@ -160,31 +133,13 @@ model.save(f'./{attepmt_name_dir}/end_of_training_version')
 
 """It was still decreasing, so let's keep it going for 10 more epochs with lr = 1e-3"""
 
-def scheduler(epoch, lr):
-  if epoch <= 6:
-    return 1e-4
 
-  else:
-    return 1e-5
 
-my_callbacks = [
-    tf.keras.callbacks.EarlyStopping(patience=20, verbose=1),
-    tf.keras.callbacks.ReduceLROnPlateau(monitor="val_loss", factor=0.1, patience=5, verbose=1),
-    tf.keras.callbacks.LearningRateScheduler(scheduler, verbose=1),
-    tf.keras.callbacks.ModelCheckpoint(
-        filepath=f'./{attepmt_name_dir}' + '/model_sampling_after_20_epochs.{epoch:02d}-{val_loss:.2f}.h5', verbose=1),
-    tf.keras.callbacks.TensorBoard(log_dir=f'./{attepmt_name_dir}/logs_new_after_20_epochs'),
-]
-
-model.fit(train_data_generator, validation_data=holdout_data_generator,
-          epochs=num_epoch, callbacks=my_callbacks)
-
-model.save(f'./{attepmt_name_dir}/end_of_training_version_after_20_epochs')
 
 """Let's have it predict on the holdout data"""
 
 
-iou_df, y_pred_list, y_list = model_utils.calculate_iou_holdout_set(
+iou_df, y_pred_list, y_list = metric_utils.calculate_iou_holdout_set(
     holdout_df_=holdout_fold_0_df, img_dims=resize_dim,
     model_=model, pixel_threshold=0.0875, prediction_batch_size=16)
 
@@ -219,8 +174,8 @@ result_list = list()
 
 for threshold in np.random.uniform(min_theshold, max_threshold, n_samples):
   for y_i, y_pred_i in zip(y_list, y_pred_list):
-    img_i_iou = model_utils.calculate_iou(target=(y_i > true_label_threshold) * 1,
-                                          prediction=(y_pred_i > threshold)*1)
+    img_i_iou = metric_utils.calculate_iou(target=(y_i > true_label_threshold) * 1,
+                                           prediction=(y_pred_i > threshold)*1)
     iou_list.append(img_i_iou)  
 
   result_list.append({'threshold': threshold, 'mean_iou':np.mean(img_i_iou)})
@@ -298,6 +253,6 @@ path_best_performing_model = './training_runs/juan/v12_30epochs_90_10_split_jacc
 model = tf.keras.models.load_model(
     path_best_performing_model,
     custom_objects={'iou':iou, 'iou_thresholded': iou_thresholded,
-                    'binary_focal_loss_fixed': model_utils.binary_focal_loss(gamma=2., alpha=0.7)})
+                    'binary_focal_loss_fixed': metric_utils.binary_focal_loss(gamma=2., alpha=0.7)})
 
 

@@ -1,26 +1,6 @@
-from typing import Union, Callable
-
 import numpy as np
 import tensorflow as tf
 from keras import backend as K
-
-
-def get_loss_function(loss_function_name: str, **kwargs) -> Union[str, Callable]:
-
-    if loss_function_name == 'jaccard_loss':
-        return jaccard_distance_loss
-
-    elif loss_function_name == 'dice_loss':
-        return jaccard_distance_loss
-
-    elif loss_function_name == 'binary_focal_loss':
-        return binary_focal_loss(**kwargs)
-
-    elif loss_function_name == 'binary_crossentropy':
-        return 'binary_crossentropy'
-
-    else:
-        raise Exception('Loss function not included in `get_loss_function()`')
 
 
 def jaccard_distance_loss(y_true, y_pred, smooth=100):
