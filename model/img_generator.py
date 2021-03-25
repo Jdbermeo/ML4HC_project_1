@@ -1,5 +1,6 @@
 import os
 import random
+import logging
 
 import cv2 as cv
 from typing import Tuple, Dict, Optional
@@ -19,6 +20,10 @@ class DataGenerator2D(tf.keras.utils.Sequence):
                  random_crop: Optional[tuple] = None, shearing: Optional[Tuple[tuple, tuple]] =None,
                  gaussian_blur: Optional[Tuple[float, float]] = None
                  ):
+        """
+
+        :rtype: DataGenerator2D
+        """
         self.batch_size = batch_size
         self.df = df
         self.indices = self.df[[]]
@@ -49,8 +54,15 @@ class DataGenerator2D(tf.keras.utils.Sequence):
         self.depth_class_col = depth_class_col
 
         if self.class_sampling is not None and self.depth_class_col is not None:
+            logging.info('Images from cancer/not cancer are sampled')
+
             self.has_cancer_idx = self.df[self.df.has_cancer_pixels][[]]
+            logging.info('2D Imgs with cancer: approximately {} images per epoch'
+                         .format(np.floor(self.has_cancer_idx.shape[0] * class_sampling['cancer_pixel'])))
+
             self.not_has_cancer_idx = self.df[~self.df.has_cancer_pixels][[]]
+            logging.info('2D Imgs without cancer: approximately {} images per epoch'
+                         .format(np.floor(self.not_has_cancer_idx.shape[0] * class_sampling['not_cancer_pixel'])))
 
         self.on_epoch_end()
 
@@ -93,6 +105,7 @@ class DataGenerator2D(tf.keras.utils.Sequence):
         if self.class_sampling is not None and self.depth_class_col is not None:
             epoch_cancer_idx = self.has_cancer_idx.groupby(level=0).sample(
                 frac=self.class_sampling['cancer_pixel'], replace=True)
+
             epoch_not_cancer_idx = self.not_has_cancer_idx.groupby(level=0).sample(
                 frac=self.class_sampling['not_cancer_pixel'])
 

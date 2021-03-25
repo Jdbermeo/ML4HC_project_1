@@ -50,7 +50,6 @@ def generate_fold_dict(df_: pd.DataFrame, n_folds: int = 3, seed: int = 123) -> 
 
 
 def get_loss_function(loss_function_name: str, **kwargs) -> Union[str, Callable]:
-
     if loss_function_name == 'jaccard_loss':
         return jaccard_distance_loss
 
@@ -78,68 +77,88 @@ def prepare_train_holdout_generators(data_path_source_dir_: str, training_params
     :param training_params: Training parameters from the YAML
     :return: train_data_generator, holdout_data_generator objects to feed the Keras model
     """
-    sampling_params_ = training_params['sampling_params']
-    augmentation_params_ = training_params['augmentation_params']
-    preprocesing_params_ = training_params['preprocesing_params']
-    preprocess_object_storing_dir_ = training_params['preprocess_object_storing_dir']
+    sampling_params = training_params['sampling_params']
+    augmentation_params = training_params['augmentation_params']
+    preprocesing_params = training_params['preprocesing_params']
+    preprocess_object_storing_dir = training_params['preprocess_object_storing_dir']
 
-    # Create dataframes in the format and with the information required by the generators that will feed the model
-    tr_df, x_ts_df = get_ct_scan_information.build_train_test_df(data_path_source_dir_)
-    cancer_pixels_df = get_ct_scan_information.get_cancer_pixel_count_df(full_tr_df=tr_df)
+    os.makedirs(preprocess_object_storing_dir, exist_ok=True)
+    x_ts_df_path = os.path.join(preprocess_object_storing_dir, 'x_ts_df.pkl')
+    tr_fold_0_df_cancer_info_path = os.path.join(preprocess_object_storing_dir, 'tr_fold_0_df_cancer_info.pkl')
+    holdout_fold_0_df_cancer_info_path = os.path.join(preprocess_object_storing_dir,
+                                                      'holdout_fold_0_df_cancer_info.pkl')
 
-    # Store the dataframe that will be used for the train set
-    x_ts_df.to_pickle(
-        os.path.join(preprocess_object_storing_dir_, 'x_ts_df.pkl')
-    )
+    if os.path.isfile(tr_fold_0_df_cancer_info_path) and os.path.isfile(holdout_fold_0_df_cancer_info_path):
+        tr_fold_0_df_cancer_info = pd.read_pickle(tr_fold_0_df_cancer_info_path)
+        holdout_fold_0_df_cancer_info = pd.read_pickle(holdout_fold_0_df_cancer_info_path)
 
-    # Create CV folds for `tr_df`
-    tr_fold_df_dict = generate_fold_dict(df_=tr_df, n_folds=training_params['folds'],
-                                         seed=training_params['seed'])
+    else:
+        # Create dataframes in the format and with the information required by the generators that will feed the model
+        logging.info("Create dataframes in the format and with the information required by the generators that will "
+                     "feed the model")
+        tr_df, x_ts_df = get_ct_scan_information.build_train_test_df(data_path_source_dir_)
 
-    # Take one of the folds to train the model
-    tr_fold_0_df = tr_fold_df_dict['fold_0']['train']
-    holdout_fold_0_df = tr_fold_df_dict['fold_0']['holdout']
-    logging.info(f'Rows in the train set in each fold (before sampling): {tr_fold_0_df.shape[0]}')
-    logging.info(f'Rows in the holdout set in each fold (before sampling): {holdout_fold_0_df.shape[0]}')
+        logging.info('Store x_ts_df_path to use in prediction')
+        x_ts_df.to_pickle(x_ts_df_path)
 
-    # Let's add the information of which slices contain cancer and which do not
-    tr_fold_0_df_cancer_info = get_ct_scan_information.add_cancer_pixel_info(
-        df_=tr_fold_0_df.copy(),
-        cancer_pixels_df_=cancer_pixels_df
-    )
+        logging.info("Get information on which slices are labeled with cancer")
+        cancer_pixels_df_path = os.path.join(preprocess_object_storing_dir, 'cancer_pixels_df.pkl')
 
-    tr_fold_0_df_cancer_info.to_pickle(
-        os.path.join(preprocess_object_storing_dir_, 'tr_fold_0_df_cancer_info.pkl')
-    )
+        if os.path.isfile(cancer_pixels_df_path):
+            logging.info("Read cancer_pixels_df from pickle")
+            cancer_pixels_df = pd.read_pickle(cancer_pixels_df_path)
 
-    holdout_fold_0_df_cancer_info = get_ct_scan_information.add_cancer_pixel_info(
-        df_=holdout_fold_0_df.copy(),
-        cancer_pixels_df_=cancer_pixels_df
-    )
+        else:
+            logging.info("Create cancer_pixels_df and save it into a pkl")
+            cancer_pixels_df = get_ct_scan_information.get_cancer_pixel_count_df(full_tr_df=tr_df)
+            cancer_pixels_df.to_pickle(cancer_pixels_df_path)
 
-    holdout_fold_0_df_cancer_info.to_pickle(
-        os.path.join(preprocess_object_storing_dir_, 'holdout_fold_0_df_cancer_info.pkl')
-    )
+        # Create CV folds for `tr_df`
+        tr_fold_df_dict = generate_fold_dict(df_=tr_df, n_folds=training_params['folds'],
+                                             seed=training_params['seed'])
+
+        # Take one of the folds to train the model
+        tr_fold_0_df = tr_fold_df_dict['fold_0']['train']
+        holdout_fold_0_df = tr_fold_df_dict['fold_0']['holdout']
+        logging.info(f'Rows in the train set in each fold (before sampling): {tr_fold_0_df.shape[0]}')
+        logging.info(f'Rows in the holdout set in each fold (before sampling): {holdout_fold_0_df.shape[0]}')
+
+        # Let's add the information of which slices contain cancer and which do not
+        tr_fold_0_df_cancer_info = get_ct_scan_information.add_cancer_pixel_info(
+            df_=tr_fold_0_df.copy(),
+            cancer_pixels_df_=cancer_pixels_df
+        )
+
+        tr_fold_0_df_cancer_info.to_pickle(tr_fold_0_df_cancer_info_path)
+
+        holdout_fold_0_df_cancer_info = get_ct_scan_information.add_cancer_pixel_info(
+            df_=holdout_fold_0_df.copy(),
+            cancer_pixels_df_=cancer_pixels_df
+        )
+
+        holdout_fold_0_df_cancer_info.to_pickle(
+            os.path.join(preprocess_object_storing_dir, 'holdout_fold_0_df_cancer_info.pkl')
+        )
 
     # Let's create a generator for the train and holdout set using the first fold
     train_data_generator = img_generator.DataGenerator2D(
         df=tr_fold_0_df_cancer_info, x_col='x_tr_img_path', y_col='y_tr_img_path',
         shuffle=True, shuffle_depths=True,
         batch_size=training_params['batch_size_train'],
-        class_sampling=sampling_params_['class_sampling'], depth_class_col=sampling_params_['depth_class_col'],
-        resize_dim=preprocesing_params_['resize_dim_'], hounsfield_min=preprocesing_params_['hounsfield_min'],
-        hounsfield_max=preprocesing_params_['hounsfield_max'],
-        rotate_range=augmentation_params_['rotate_range'], horizontal_flip=augmentation_params_['horizontal_flip'],
-        vertical_flip=augmentation_params_['vertical_flip'], random_crop=augmentation_params_['random_crop'],
-        shearing=augmentation_params_['shearing'], gaussian_blur=augmentation_params_['gaussian_blur']
+        class_sampling=sampling_params['class_sampling'], depth_class_col=sampling_params['depth_class_col'],
+        resize_dim=preprocesing_params['resize_dim'], hounsfield_min=preprocesing_params['hounsfield_min'],
+        hounsfield_max=preprocesing_params['hounsfield_max'],
+        rotate_range=augmentation_params['rotate_range'], horizontal_flip=augmentation_params['horizontal_flip'],
+        vertical_flip=augmentation_params['vertical_flip'], random_crop=augmentation_params['random_crop'],
+        shearing=augmentation_params['shearing'], gaussian_blur=augmentation_params['gaussian_blur']
     )
 
     holdout_data_generator = img_generator.DataGenerator2D(
-        df=holdout_fold_0_df, x_col='x_tr_img_path', y_col='y_tr_img_path',
+        df=holdout_fold_0_df_cancer_info, x_col='x_tr_img_path', y_col='y_tr_img_path',
         shuffle=False,
         batch_size=training_params['batch_size_val'],
-        resize_dim=preprocesing_params_['resize_dim_'], hounsfield_min=preprocesing_params_['hounsfield_min'],
-        hounsfield_max=preprocesing_params_['hounsfield_max']
+        resize_dim=preprocesing_params['resize_dim'], hounsfield_min=preprocesing_params['hounsfield_min'],
+        hounsfield_max=preprocesing_params['hounsfield_max']
     )
 
     return train_data_generator, holdout_data_generator, tr_fold_0_df_cancer_info, holdout_fold_0_df_cancer_info

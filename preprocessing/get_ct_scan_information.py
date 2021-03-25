@@ -107,7 +107,7 @@ def get_cancer_pixel_count_df(full_tr_df: pd.DataFrame) -> pd.DataFrame:
     """
     cancer_pixel_info = list()
 
-    for label_path in full_tr_df.y_tr_img_path:
+    for label_path in full_tr_df.y_tr_img_path.unique():
         img_number = label_path.split('colon_')[-1].split('.nii.gz')[0]
         img_label_arr = nib.load(label_path).get_data()
 

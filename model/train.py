@@ -31,7 +31,7 @@ def train(data_path_source_dir_: str, training_params: dict, model_params: dict)
         lr_=training_params['learning_rate'],
         loss_function_name_=training_params['loss_function_name'],
         object_storing_dir_=model_object_storing_dir,
-        num_filters_first_level_=training_params['num_filters_first_level_'],
+        num_filters_first_level_=training_params['num_filters_first_level'],
         **training_params['loss_function_params']
     )
 

@@ -22,6 +22,8 @@ training_params:
     alpha: 0.7
     gamma: 2.0
   model_object_storing_dir: model_training_data
+  num_epoch: 1 #17
+  num_filters_first_level: 32
   preprocess_object_storing_dir: preprocessed_dataframes
   seed: 123
 
@@ -44,6 +46,6 @@ training_params:
 
   sampling_params:
     class_sampling:
-      cancer_pixel: 2
-      not_cancer_pixel: 0.4
+      cancer_pixel: 0.1 # 2.0
+      not_cancer_pixel: 0.1 # 0.4
     depth_class_col: has_cancer_pixels

@@ -2,3 +2,6 @@ ml4h_proj1_colon_cancer_ct/*
 cancer_pixels_df
 __pycache__/*
 .ipynb_checkpoints/*
+preprocessed_dataframes - copia/
+preprocessed_dataframes/
+model_training_data/

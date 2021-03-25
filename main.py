@@ -1,8 +1,8 @@
-import argparse
 import yaml
+import logging
+import argparse
 
 from model import train, predict
-
 
 def parse_arguments():
     parser = argparse.ArgumentParser()
@@ -26,11 +26,13 @@ if __name__ == '__main__':
         config_params = yaml.load(yaml_file, Loader=yaml.FullLoader)
 
     if args.mode == 'train':
+        logging.basicConfig(filename='training.log', level=logging.DEBUG, filemode='w')
         train.train(data_path_source_dir_=config_params['data_params']['data_dir_path'],
                     training_params=config_params['training_params'],
                     model_params=config_params['model_params'])
 
     elif args.mode == 'predict':
+        logging.basicConfig(filename='prediction.log', level=logging.DEBUG, filemode='w')
         predict.predict(data_path_source_dir_=config_params['data_params']['data_dir_path'],
                         training_params=config_params['training_params'],
                         model_params=config_params['model_params'])
