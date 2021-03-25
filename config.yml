@@ -1,0 +1,45 @@
+model_params:
+  best_model_path: ''
+  output_threshold: 0.0875
+
+  predict_params:
+    output_dir: test_pred
+    prediction_batch_size: 32
+    test_dims: !!python/tuple
+    - 512
+    - 512
+
+training_params:
+  batch_size_train: 64
+  batch_size_val: 64
+  folds: 10
+  learning_rate: 0.01
+  loss_function_name: binary_focal_loss
+  loss_function_params:
+    alpha: 0.7
+    gamma: 2.0
+  preprocess_object_storing_dir: preprocessed_dataframes
+  seed: 123
+
+  augmentation_params:
+    gaussian_blur: null
+    horizontal_flip: true
+    random_crop: !!python/tuple
+    - 0.8
+    - 0.9
+    rotate_range: 30
+    shearing: null
+    vertical_flip: true
+
+  preprocesing_params:
+    hounsfield_max: 400.0
+    hounsfield_min: -1000.0
+    resize_dim: !!python/tuple
+    - 128
+    - 128
+
+  sampling_params:
+    class_sampling:
+      cancer_pixel: 2
+      not_cancer_pixel: 0.4
+    depth_class_col: has_cancer_pixels
