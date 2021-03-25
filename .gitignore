@@ -5,3 +5,4 @@ __pycache__/*
 preprocessed_dataframes - copia/
 preprocessed_dataframes/
 model_training_data/
+test_pred/

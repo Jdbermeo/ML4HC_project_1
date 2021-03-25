@@ -2,7 +2,7 @@ data_params:
   data_dir_path: ml4h_proj1_colon_cancer_ct
 
 model_params:
-  best_model_path: ''
+  best_model_path: model_training_data\model_sampling.01-22.30.h5
   output_threshold: 0.0875
   prediction_batch_size: 64
 

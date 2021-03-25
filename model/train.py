@@ -39,7 +39,7 @@ def train(data_path_source_dir_: str, training_params: dict, model_params: dict)
     my_callbacks = [
         tf.keras.callbacks.LearningRateScheduler(training_utils.scheduler, verbose=1),
         tf.keras.callbacks.ModelCheckpoint(
-            filepath=f'./{model_object_storing_dir}' + '/model_sampling.{epoch:02d}-{val_loss:.2f}.h5', verbose=1),
+            filepath=f'./{model_object_storing_dir}' + '/model.{epoch:02d}-{val_loss:.2f}.h5', verbose=1),
         tf.keras.callbacks.TensorBoard(log_dir=f'./{model_object_storing_dir}/logs'),
     ]
 
@@ -92,4 +92,4 @@ def store_metrics(df_cancer_info: pd.DataFrame, dataset_type: str, model: tf.ker
         pd.Series(np.unique(img_i)).plot.hist(bins=35, density=True)
         plt.title(f'Histogram of types of predicted pixel values on {dataset_type} set in image {i}')
         plt.savefig(os.path.join(model_object_storing_dir, 'activation_values', dataset_type,
-                                 f'Histogram of types of predicted pixel values img_{i} in {dataset_type}.pdf'))
+                                 f'Histogram of types of predicted pixel values img_{i} in {dataset_type}.jpg'))

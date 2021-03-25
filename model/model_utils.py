@@ -34,8 +34,6 @@ def create_model(resize_dim_: Tuple[int, int], lr_: float, loss_function_name_: 
     # Compile the model
     model.compile(
         optimizer=Adam(learning_rate=lr_),
-        # optimizer=SGD(lr=0.01, momentum=0.99),
-        # loss='binary_crossentropy',
         loss=loss_function,
         metrics=[iou, iou_thresholded]
     )
@@ -60,7 +58,7 @@ def predict_test_set(test_df_: pd.DataFrame, pred_dims: tuple, test_dims: tuple,
 
     for img_dx, df_ in test_df_.groupby(level=0):
         full_img_path = df_.loc[img_dx].iloc[0]['x_ts_img_path']
-        img_name = full_img_path.split('/')[-1].split('.')[0]
+        img_name = os.path.basename(full_img_path).split('.')[0]
 
         img_i_generator = img_generator.DataGenerator2D(
             df=df_, x_col='x_ts_img_path', y_col=None,
