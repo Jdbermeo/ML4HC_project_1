@@ -8,8 +8,7 @@ from keras_unet.models import custom_unet
 from tensorflow.keras.optimizers import Adam
 from keras_unet.metrics import iou, iou_thresholded
 
-import training_utils
-import img_generator
+from model import training_utils, img_generator
 
 
 def create_model(resize_dim_: Tuple[int, int], lr_: float, loss_function_name_: str,

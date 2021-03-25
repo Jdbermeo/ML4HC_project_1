@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from typing import Tuple
 
-from img_generator import DataGenerator2D
+from model.img_generator import DataGenerator2D
 
 
 def calculate_iou(target: np.ndarray, prediction: np.ndarray) -> float:

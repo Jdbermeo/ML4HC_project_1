@@ -5,7 +5,7 @@ from typing import Dict, Union, Callable, Tuple
 import pandas as pd
 from sklearn.model_selection import KFold
 
-from loss_functions import jaccard_distance_loss, binary_focal_loss, dice_coef_loss
+from model.loss_functions import jaccard_distance_loss, binary_focal_loss, dice_coef_loss
 from model import img_generator
 from model.img_generator import DataGenerator2D
 from preprocessing import get_ct_scan_information

@@ -1,6 +1,7 @@
 import os
 import json
 import random
+import logging
 
 import pandas as pd
 import numpy as np
@@ -11,17 +12,20 @@ from model import training_utils, model_utils, metric_utils
 
 
 def train(data_path_source_dir_: str, training_params: dict, model_params: dict):
+    logging.info('-------------------TRAIN-------------------')
     model_object_storing_dir = training_params['model_object_storing_dir']
     os.makedirs(model_object_storing_dir, exist_ok=True)
 
     preprocesing_params_ = training_params['preprocesing_params']
 
     # Get data generators for train and holdout
+    logging.info('Get data generators for train and holdout')
     train_data_generator, holdout_data_generator, tr_fold_0_df_cancer_info, holdout_fold_0_df_cancer_info = \
         training_utils.prepare_train_holdout_generators(
             training_params=training_params, data_path_source_dir_=data_path_source_dir_)
 
     # Build model
+    logging.info('Build model')
     model = model_utils.create_model(
         resize_dim_=preprocesing_params_['resize_dim'],
         lr_=training_params['learning_rate'],
@@ -40,17 +44,21 @@ def train(data_path_source_dir_: str, training_params: dict, model_params: dict)
     ]
 
     # Train the model
+    logging.info('Train the model')
     model.fit(train_data_generator, validation_data=holdout_data_generator,
               epochs=training_params['num_epoch'], callbacks=my_callbacks)
 
     # Save the models training history
+    logging.info("Save the model's training history")
     with open(os.path.join(model_object_storing_dir, 'training_history.json'), 'w') as f:
         json.dump(model.history, f)
 
     # Store last version of the model
+    logging.info("Store last version of the model")
     model.save(f'./{model_object_storing_dir}/end_of_training_version')
 
     # Store metrics for the train and holdout sets
+    logging.info('Store metrics for the train and holdout sets')
     store_metrics(df_cancer_info=tr_fold_0_df_cancer_info, dataset_type='train', model=model,
                   model_object_storing_dir=model_object_storing_dir, model_params=model_params,
                   preprocesing_params_=preprocesing_params_, training_params=training_params)
