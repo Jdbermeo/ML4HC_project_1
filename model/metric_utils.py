@@ -20,12 +20,12 @@ def calculate_iou(target: np.ndarray, prediction: np.ndarray) -> float:
     return iou_score
 
 
-def calculate_iou_holdout_set(holdout_df_: pd.DataFrame, img_dims: Tuple, model_,
-                              pixel_threshold: float = 0.5, prediction_batch_size: int = 32) \
+def calculate_iou_df(df_: pd.DataFrame, img_dims: Tuple, model_,
+                     pixel_threshold: float = 0.5, prediction_batch_size: int = 32) \
         -> Tuple[pd.DataFrame, list, list]:
     """
 
-    :param holdout_df_:
+    :param df_:
     :param img_dims:
     :param model_:
     :param pixel_threshold:
@@ -37,7 +37,7 @@ def calculate_iou_holdout_set(holdout_df_: pd.DataFrame, img_dims: Tuple, model_
     y_pred_list = list()
     y_list = list()
 
-    for img_dx, df_ in holdout_df_.groupby(level=0):
+    for img_dx, df_ in df_.groupby(level=0):
         img_i_generator = DataGenerator2D(df=df_, x_col='x_tr_img_path', y_col=None,
                                           batch_size=prediction_batch_size, num_classes=None, shuffle=False,
                                           resize_dim=img_dims)

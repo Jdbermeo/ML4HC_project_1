@@ -139,8 +139,8 @@ model.save(f'./{attepmt_name_dir}/end_of_training_version')
 """Let's have it predict on the holdout data"""
 
 
-iou_df, y_pred_list, y_list = metric_utils.calculate_iou_holdout_set(
-    holdout_df_=holdout_fold_0_df, img_dims=resize_dim,
+iou_df, y_pred_list, y_list = metric_utils.calculate_iou_df(
+    df_=holdout_fold_0_df, img_dims=resize_dim,
     model_=model, pixel_threshold=0.0875, prediction_batch_size=16)
 
 iou_df

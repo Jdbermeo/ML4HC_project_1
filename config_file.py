@@ -4,6 +4,8 @@ training_params = {
     'batch_size_val': 64,
     'num_epoch': 30,
     'loss_function_name': 'binary_focal_loss',
+    'loss_function_params': {'gamma': 2., 'alpha': 0.7},
+    'num_filters_first_level_': 32,
     'model_object_storing_dir': 'model_training_data',
     'preprocess_object_storing_dir': 'preprocessed_dataframes',
     'folds': 10,
@@ -29,4 +31,14 @@ training_params = {
         'depth_class_col': 'has_cancer_pixels'
     },
 
+}
+
+model_params = {
+    'output_threshold': 0.0875,
+    'best_model_path': '',
+    'predict_params': {
+        'prediction_batch_size': 32,
+        'output_dir': 'test_pred',
+        'test_dims': (512, 512)
+    }
 }

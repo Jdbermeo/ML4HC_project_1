@@ -1,12 +1,13 @@
 import os
 import logging
-from typing import Dict, Union, Callable
+from typing import Dict, Union, Callable, Tuple
 
 import pandas as pd
 from sklearn.model_selection import KFold
 
 from loss_functions import jaccard_distance_loss, binary_focal_loss, dice_coef_loss
 from model import img_generator
+from model.img_generator import DataGenerator2D
 from preprocessing import get_ct_scan_information
 
 
@@ -66,7 +67,8 @@ def get_loss_function(loss_function_name: str, **kwargs) -> Union[str, Callable]
         raise Exception('Loss function not included in `get_loss_function()`')
 
 
-def prepare_train_holdout_generators(data_path_source_dir_: str, training_params: dict):
+def prepare_train_holdout_generators(data_path_source_dir_: str, training_params: dict) -> \
+        Tuple[DataGenerator2D, DataGenerator2D, pd.DataFrame, pd.DataFrame]:
     """
     Takes directory where CT scan data is stored. Assumes subdirs imagesTs/Tr and labelsTr structure. Returns
     generators that read the scan data by 2D slices and feed them to the model with an augmentation and class
@@ -84,6 +86,11 @@ def prepare_train_holdout_generators(data_path_source_dir_: str, training_params
     # Create dataframes in the format and with the information required by the generators that will feed the model
     tr_df, x_ts_df = get_ct_scan_information.build_train_test_df(data_path_source_dir_)
     cancer_pixels_df = get_ct_scan_information.get_cancer_pixel_count_df(full_tr_df=tr_df)
+
+    # Store the dataframe that will be used for the train set
+    x_ts_df.to_pickle(
+        os.path.join(preprocess_object_storing_dir_, 'x_ts_df.pkl')
+    )
 
     # Create CV folds for `tr_df`
     tr_fold_df_dict = generate_fold_dict(df_=tr_df, n_folds=training_params['folds'],
@@ -135,4 +142,4 @@ def prepare_train_holdout_generators(data_path_source_dir_: str, training_params
         hounsfield_max=preprocesing_params_['hounsfield_max']
     )
 
-    return train_data_generator, holdout_data_generator
+    return train_data_generator, holdout_data_generator, tr_fold_0_df_cancer_info, holdout_fold_0_df_cancer_info
