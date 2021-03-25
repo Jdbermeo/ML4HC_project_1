@@ -4,6 +4,7 @@ data_params:
 model_params:
   best_model_path: ''
   output_threshold: 0.0875
+  prediction_batch_size: 64
 
   predict_params:
     output_dir: test_pred

@@ -1,13 +1,10 @@
 INFO:root:-------------------TRAIN-------------------
 INFO:root:Get data generators for train and holdout
-INFO:root:Create dataframes in the format and with the information required by the generators that will feed the model
-INFO:root:Store x_ts_df_path to use in prediction
-INFO:root:Get information on which slices are labeled with cancer
-INFO:root:Create cancer_pixels_df and save it into a pkl
-INFO:root:Rows in the train set in each fold (before sampling): 9202
-INFO:root:Rows in the holdout set in each fold (before sampling): 960
 INFO:root:Images from cancer/not cancer are sampled
-INFO:root:2D Imgs with cancer: approximately 9.0 images per epoch
-INFO:root:2D Imgs without cancer: approximately 82.0 images per epoch
+INFO:root:2D Imgs with cancer: approximately 92.0 images per epoch
+INFO:root:2D Imgs without cancer: approximately 828.0 images per epoch
 INFO:root:Build model
 INFO:root:Train the model
+WARNING:tensorflow:From C:\Users\Juan Diego\anaconda3\envs\Project_1\lib\site-packages\tensorflow\python\ops\summary_ops_v2.py:1277: stop (from tensorflow.python.eager.profiler) is deprecated and will be removed after 2020-07-01.
+Instructions for updating:
+use `tf.profiler.experimental.stop` instead.

@@ -4,6 +4,7 @@ import argparse
 
 from model import train, predict
 
+
 def parse_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument('--mode', type=str,  choices=['train', 'predict'],

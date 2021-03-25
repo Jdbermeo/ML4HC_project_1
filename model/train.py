@@ -50,8 +50,7 @@ def train(data_path_source_dir_: str, training_params: dict, model_params: dict)
 
     # Save the models training history
     logging.info("Save the model's training history")
-    with open(os.path.join(model_object_storing_dir, 'training_history.json'), 'w') as f:
-        json.dump(model.history, f)
+    pd.DataFrame(model.history.history).to_csv(os.path.join(model_object_storing_dir, 'training_history.csv'))
 
     # Store last version of the model
     logging.info("Store last version of the model")
