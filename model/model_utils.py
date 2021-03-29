@@ -26,7 +26,7 @@ def create_model(resize_dim_: Tuple[int, int], lr_: float, loss_function_name_: 
     :param use_batch_norm_:
     :param loss_kwargs: In case the loss function takes arguments, add them as a dictionary
 
-    :return:
+    :return: Keras.model 2D Unet
     """
 
     # Build model with `custom_unet` library

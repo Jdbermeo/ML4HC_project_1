@@ -12,6 +12,13 @@ from preprocessing import get_ct_scan_information
 
 
 def scheduler(epoch, lr):
+    """
+    Schedule of the learning rate during training based on the epoch number. Currently it is manually set for each
+    epoch range instead of it being dependent on the current learning rate value
+    :param epoch:
+    :param lr:
+    :return:
+    """
     if epoch <= 3:
         return 1e-2
 
@@ -27,12 +34,14 @@ def scheduler(epoch, lr):
 
 def generate_fold_dict(df_: pd.DataFrame, n_folds: int = 3, seed: int = 123) -> Dict[str, Dict[str, pd.DataFrame]]:
     """
+    Create the folds that could be used for cross validation
 
-    :param df_:
+    :param df_: tr_df with cancer pixel information
     :param n_folds:
     :param seed:
     :return:
     """
+
     img_num_idx_list = df_.index.levels[0]
     folder = KFold(n_splits=n_folds, random_state=seed, shuffle=True)
     df_fold_dict = dict()
@@ -50,6 +59,13 @@ def generate_fold_dict(df_: pd.DataFrame, n_folds: int = 3, seed: int = 123) -> 
 
 
 def get_loss_function(loss_function_name: str, **kwargs) -> Union[str, Callable]:
+    """
+    Return one of the custom loss functions used for image segmentation
+
+    :param loss_function_name: String with name of los function to use
+    :param kwargs: Dictionary of arguments to create the specific loss function (required for binary_focal_loss)
+    :return: The custom function or name of an already implemented loss function in keras
+    """
     if loss_function_name == 'jaccard_loss':
         return jaccard_distance_loss
 

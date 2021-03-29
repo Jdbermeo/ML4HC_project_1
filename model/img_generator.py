@@ -21,6 +21,9 @@ class DataGenerator2D(tf.keras.utils.Sequence):
                  gaussian_blur: Optional[Tuple[float, float]] = None
                  ):
         """
+        Extension of the `tf.keras.utils.Sequence` to read `.nii.gz` files, operate or not augmentation transformations
+        on the fly, up sample or down sample slices with cancer or not, and generate mini-batches of different 2D single
+        channel slices for the 3D CT scans to feed a `keras.model` during the `fit()` operation.
 
         :rtype: DataGenerator2D
         """
@@ -67,6 +70,10 @@ class DataGenerator2D(tf.keras.utils.Sequence):
         self.on_epoch_end()
 
     def __len__(self) -> int:
+        """
+        Get length of a mini-batch, that the class uses to define how many iteration loops it will take
+        :return:
+        """
         return int(np.ceil(len(self.indices) / self.batch_size))
 
     def __getitem__(self, index) -> Tuple[np.ndarray, np.ndarray]:
@@ -78,7 +85,7 @@ class DataGenerator2D(tf.keras.utils.Sequence):
         images cut's is actually preserved
 
         :param index: mini-batch index number within an epoch. So if index=1, it means we are in mini-batch 2.
-        :return:
+        :return: X, y, numpy arrays that the .fit() function will use
         """
 
         # We use iloc to identify the next `batch_size` rows to pick, and then get their actual indexes (index, depth_i)
@@ -95,9 +102,9 @@ class DataGenerator2D(tf.keras.utils.Sequence):
         """
         After each epoch ends we usually shuffle the training data. This specific function shuffles the `self.indices`
         attribute indices either at image number, and image number and their cuts/depth if so chosen with the
-        attributes `self.shuffle` and `self.shuffle_depths` at initialization
+        attributes `self.shuffle` and `self.shuffle_depths` at initialization.
 
-        :return:
+        :return: X, y, numpy arrays that the .fit() function will use
         """
 
         # Implement up and down sampling of rows that do not contain cancer, the rows that make it to the sample changes
@@ -126,6 +133,17 @@ class DataGenerator2D(tf.keras.utils.Sequence):
                 self.indices = self.indices.loc[pd.IndexSlice[shuffled_img_idx, :], :]
 
     def __get_data(self, batch_idx: pd.MultiIndex) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        The functions takes a group of indexes and then uses the information of the paths in `self.df` of said indeces
+        to load the image, operate on each slice and their target with the same kind of augmentation operation,
+        concatenate them into a minibatch, and then return them
+
+        Most custom operations defined for our use case are defined here.
+
+        :param batch_idx: List of (img_num, slice_idx) to get from self.df, load, and operate on
+        :return: X, y, numpy arrays that the .fit() function will use
+        """
+
         y = None
         current_image_path = ''
         x_img = None

@@ -7,7 +7,7 @@ import pandas as pd
 import tensorflow as tf
 from keras_unet.metrics import iou, iou_thresholded
 
-from model import model_utils, img_generator
+from model import img_generator
 from preprocessing import get_ct_scan_information
 from model.loss_functions import dice_coef_loss, binary_focal_loss, jaccard_distance_loss
 
@@ -15,9 +15,10 @@ from model.loss_functions import dice_coef_loss, binary_focal_loss, jaccard_dist
 def predict(data_path_source_dir_: str, training_params: dict, model_params: dict) -> None:
     """
 
-    :param data_path_source_dir_:
-    :param training_params:
-    :param model_params:
+    :param data_path_source_dir_: Path to directory where the image data is stored assuming existence of
+                                    imageTr/Ts and labelTr subdirs
+    :param training_params: Dictionary with parameters of the different functions used for training
+    :param model_params: Dictionary with parameters of the different functions used to create and compile the Unet
     :return:
     """
 
@@ -56,14 +57,16 @@ def predict(data_path_source_dir_: str, training_params: dict, model_params: dic
 def predict_test_set(test_df_: pd.DataFrame, pred_dims: tuple, test_dims: tuple,  model_, pixel_threshold: float = 0.5,
                      prediction_batch_size: int = 32, output_dir: str = 'test_pred') -> None:
     """
+    loads a model spcified in `config.yml` and generates predictions for the images in `test_df` and stores
+     the predictions in `.npz` format. It resizes predictions to match `test_dims`.
 
-    :param test_df_:
-    :param pred_dims:
-    :param test_dims:
-    :param model_:
-    :param pixel_threshold:
-    :param prediction_batch_size:
-    :param output_dir:
+    :param test_df_: Dataframe with path info and index by (img_num, slice_num) of the test set
+    :param pred_dims: Input size of 2D images used by the model
+    :param test_dims: Dimensions of the images in the test set
+    :param model_: Model to use to generate the predictions
+    :param pixel_threshold: Threshold for pixel values to convert them to 0s or 1s
+    :param prediction_batch_size: mini-batchsize to use when evaluating the model
+    :param output_dir: Directory to store the predictions
     :return:
     """
     os.makedirs(output_dir, exist_ok=True)

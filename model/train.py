@@ -1,5 +1,4 @@
 import os
-import json
 import random
 import logging
 
@@ -12,11 +11,26 @@ from model import training_utils, model_utils, metric_utils
 
 
 def train(data_path_source_dir_: str, training_params: dict, model_params: dict):
+    """
+    Sequence all the steps in the helper scripts in accordance to the parameter values given to do the following:
+        - Create generator objects that can feed 2D single channel images to a keras.model fit() method
+        - Create a 2D Unet
+        - Fit the Unet and store the information of its progress and best performing versions
+        - Obtain IoU on train and holdout
+        - Store information about the pixel values predicted by the model on a sample of 5 images
+
+    :param data_path_source_dir_: Path to directory where the image data is stored assuming existence of
+                                    imageTr/Ts and labelTr subdirs
+    :param training_params: Dictionary with parameters of the different functions used for training
+    :param model_params: Dictionary with parameters of the different functions used to create and compile the Unet
+
+    :return:
+    """
     logging.info('-------------------TRAIN-------------------')
     model_object_storing_dir = training_params['model_object_storing_dir']
     os.makedirs(model_object_storing_dir, exist_ok=True)
 
-    preprocesing_params_ = training_params['preprocesing_params']
+    preprocesing_params_: dict = training_params["preprocesing_params"]
 
     # Get data generators for train and holdout
     logging.info('Get data generators for train and holdout')
@@ -60,16 +74,30 @@ def train(data_path_source_dir_: str, training_params: dict, model_params: dict)
     logging.info('Store metrics for the train and holdout sets')
     store_metrics(df_cancer_info=tr_fold_0_df_cancer_info, dataset_type='train', model=model,
                   model_object_storing_dir=model_object_storing_dir, model_params=model_params,
-                  preprocesing_params_=preprocesing_params_, training_params=training_params)
+                  preprocesing_params_=preprocesing_params_)
 
     store_metrics(df_cancer_info=holdout_fold_0_df_cancer_info, dataset_type='holdout', model=model,
                   model_object_storing_dir=model_object_storing_dir, model_params=model_params,
-                  preprocesing_params_=preprocesing_params_, training_params=training_params)
+                  preprocesing_params_=preprocesing_params_)
 
 
 def store_metrics(df_cancer_info: pd.DataFrame, dataset_type: str, model: tf.keras.Model, model_object_storing_dir: str,
-                  model_params: dict, preprocesing_params_: dict, training_params: dict):
+                  model_params: dict, preprocesing_params_: dict):
+    """
+    Get the IoU metrics per image for the images in df_cancer_info using the model `model`. It stores the IoU for each
+    3D image as well as the mean IoU over all images.
 
+    Additionally, it also stores the min and max output pixel values as well as a histogram of unique pixel values for a
+     sample of 5 predicted images. This information is to be used to set the threshold
+
+    :param df_cancer_info:
+    :param dataset_type:
+    :param model:
+    :param model_object_storing_dir:
+    :param model_params:
+    :param preprocesing_params_:
+    :return:
+    """
     # Store the performance on the holdout set
     iou_df, _, y_pred_list = metric_utils.calculate_iou_df(
         df_=df_cancer_info, img_dims=preprocesing_params_['resize_dim'],

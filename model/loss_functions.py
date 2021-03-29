@@ -37,7 +37,10 @@ def dice_coef(y_true, y_pred, smooth=1):
 
 def dice_coef_loss(y_true, y_pred):
     """
+    Loss function definition found online
+
     Uses the `dice_coef` function to return it as a loss
+
     :param y_true:
     :param y_pred:
     :return:
@@ -49,6 +52,7 @@ def dice_coef_loss(y_true, y_pred):
 # Focal loss, alpha is the weight given
 def focal_loss(gamma=2., alpha=.25):
     """
+    Loss function definition found online
 
     :param gamma: In the papaer worked better with 2. It is an attenuation factor for the correct predictions of the
                     0 classes
@@ -69,6 +73,8 @@ def focal_loss(gamma=2., alpha=.25):
 
 def binary_focal_loss(gamma=2., alpha=.25):
     """
+    Loss function definition found online
+
     Binary form of focal loss.
       FL(p_t) = -alpha * (1 - p_t)**gamma * log(p_t)
       where p = sigmoid(x), p_t = p or 1 - p depending on if the label is 1 or 0, respectively.
@@ -110,6 +116,8 @@ def binary_focal_loss(gamma=2., alpha=.25):
 
 def categorical_focal_loss(alpha, gamma=2.):
     """
+    Loss function definition found online
+
     Softmax version of focal loss.
     When there is a skew between different categories/labels in your data set, you can try to apply this function as a
     loss.
