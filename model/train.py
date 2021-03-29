@@ -102,7 +102,7 @@ def store_metrics(df_cancer_info: pd.DataFrame, dataset_type: str, model: tf.ker
     iou_df, _, y_pred_list = metric_utils.calculate_iou_df(
         df_=df_cancer_info, img_dims=preprocesing_params_['resize_dim'],
         model_=model, pixel_threshold=model_params['output_threshold'],
-        prediction_batch_size=model_params['prediction_batch_size'])
+        prediction_batch_size=model_params['predict_params']['prediction_batch_size'])
 
     iou_df.to_pickle(
         os.path.join(model_object_storing_dir, f'iou_per_3d_img_{dataset_type}_df.pkl')
