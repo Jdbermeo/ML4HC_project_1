@@ -8,10 +8,12 @@ from model.img_generator import DataGenerator2D
 
 def calculate_iou(target: np.ndarray, prediction: np.ndarray) -> float:
     """
+    Calculate IoU between two numpy arrays of any dimension
 
     :param target:
     :param prediction:
-    :return:
+
+    :return: Iou score of the two arrays
     """
     intersection = np.logical_and(target, prediction)
     union = np.logical_or(target, prediction)
@@ -24,13 +26,21 @@ def calculate_iou_df(df_: pd.DataFrame, img_dims: Tuple, model_,
                      pixel_threshold: float = 0.5, prediction_batch_size: int = 32) \
         -> Tuple[pd.DataFrame, list, list]:
     """
+    Calculate the IoU for a group of 3D images listed in `df_`. It assumes `df_` is indexed by the image number and
+    a number for each of its slices in the z-dimension (starting at 0). It also assumes this `df_` has an the path
+    to the image and its label mask.
 
-    :param df_:
-    :param img_dims:
-    :param model_:
-    :param pixel_threshold:
-    :param prediction_batch_size:
-    :return:
+    Return a dataframe with the IoU for each image and a least with the predicted and ground truth arrays for the label
+    masks. These two (y_list, y_pred_list) are then tuned to fined the best threshold based on the IoU on the
+    holdout set.
+
+    :param df_: Indexed by the image number and a number for each of its slices in the z-dimension (starting at 0)
+    :param img_dims: dimensions of the images that the model cn predict on.
+    :param model_: Model used to obtain the predictions for which the IoU will be measured.
+    :param pixel_threshold: Threshold for the predictions to convert to 0s or 1s before comparing
+    :param prediction_batch_size: Number of slices to load at the same time to obtain a prediction for them
+
+    :return: iou_df, y_list, y_pred_list
     """
 
     iou_list = list()
