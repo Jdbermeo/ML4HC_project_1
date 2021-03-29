@@ -1,11 +1,16 @@
 ml4h_proj1_colon_cancer_ct/*
 cancer_pixels_df
 __pycache__/*
+model/__pycache__/*
+preprocessing/__pycache__/*
 .ipynb_checkpoints/*
 preprocessed_dataframes - copia/
 preprocessed_dataframes/
 model_training_data/
 test_pred/
 best_performing_model/
-notebooks/.ipynb_checkpoints/
+notebooks/.ipynb_checkpoints/*
+.ipynb_checkpoints/
 Untitled.ipynb
+config_file.py
+*.log
