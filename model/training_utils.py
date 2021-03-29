@@ -23,7 +23,7 @@ def scheduler(epoch, lr):
     if epoch <= 12:
         return 1e-3
 
-    elif 12 < epoch <= 25:
+    elif 12 < epoch <= 20:
         return 1e-4
 
     else:
