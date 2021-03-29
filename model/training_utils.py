@@ -19,10 +19,8 @@ def scheduler(epoch, lr):
     :param lr:
     :return:
     """
-    if epoch <= 3:
-        return 1e-2
 
-    elif 3 < epoch <= 12:
+    if epoch <= 12:
         return 1e-3
 
     elif 12 < epoch <= 25:
